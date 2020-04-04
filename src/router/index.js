@@ -2,6 +2,9 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import NewRoom from '../views/NewRoom.vue';
+import UserProfile from '../views/UserProfile.vue';
+
+// import { auth } from '../firebase';
 
 Vue.use(VueRouter);
 
@@ -15,6 +18,11 @@ const routes = [
     path: '/new-room',
     name: 'NewRoom',
     component: NewRoom,
+  },
+  {
+    path: '/profile',
+    name: 'UserProfile',
+    component: UserProfile,
   },
   {
     path: '/about',
@@ -31,5 +39,15 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 });
+
+// router.beforeEach((to, from, next) => {
+//   if (to.name !== 'Home' && !auth.currentUser) {
+//     next({
+//       name: 'Home',
+//     });
+//   }
+//
+//   next();
+// });
 
 export default router;

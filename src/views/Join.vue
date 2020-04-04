@@ -1,21 +1,37 @@
 <template>
   <section class="section">
-    <h3 class="title">Set display name</h3>
+    <h3 class="title">
+      Set display name
+    </h3>
     <div class="field">
-      <label class="label" for="display-name">Label</label>
+      <label
+        class="label"
+        for="display-name"
+      >Label</label>
       <div class="control">
-        <input class="input" type="text" id="display-name" v-model="name">
+        <input
+          id="display-name"
+          v-model="name"
+          class="input"
+          type="text"
+        >
       </div>
     </div>
 
     <div class="field">
-      <button class="button" @click="join">Join</button>
+      <button
+        class="button"
+        @click="join"
+      >
+        Join
+      </button>
     </div>
   </section>
 </template>
 
 <script>
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import EventBus from '../EventBus';
 
 export default {
   data() {
@@ -26,11 +42,16 @@ export default {
 
   methods: {
     async join() {
-      await auth.signInAnonymously();
+      const user = await auth.signInAnonymously();
 
-      await auth.currentUser.updateProfile({
-        displayName: this.name,
+      console.log(user);
+
+      await db.collection('users').add({
+        name: this.name,
+        uid: auth.currentUser.uid,
       });
+
+      EventBus.$emit('userDisplayName', this.name);
     },
   },
 };
