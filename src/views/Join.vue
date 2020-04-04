@@ -60,11 +60,11 @@ export default {
 
       await auth.signInAnonymously();
 
-      const test = await auth.currentUser.updateProfile({
+      await auth.currentUser.updateProfile({
         displayName: this.name,
       });
 
-      console.log(test);
+      this.$store.commit('user/setUser', auth.currentUser);
 
       this.loading = false;
 

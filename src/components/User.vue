@@ -2,29 +2,33 @@
   <div>
     <slot
       name="user"
-      :user="user"
+      :user="storeUser"
     />
   </div>
 </template>
 
 <script>
-import { ref } from '@vue/composition-api';
+import { ref, computed } from '@vue/composition-api';
 import { auth } from '../firebase';
 
 export default {
-  setup() {
+  setup(props, context) {
     const user = ref(null);
-    const unsubscribe = auth.onAuthStateChanged(
-      () => {
-        user.value = auth.currentUser;
 
-        // console.log(firebaseUser.displayName);
+    const unsubscribe = auth.onAuthStateChanged(
+      (firebaseuser) => {
+        user.value = firebaseuser;
+
+        context.root.$store.commit('user/setUser', firebaseuser);
       },
     );
+
+    const storeUser = computed(() => context.root.$store.state.user.firebaseUser);
 
     return {
       user,
       unsubscribe,
+      storeUser,
     };
   },
 

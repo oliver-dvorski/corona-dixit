@@ -18,7 +18,7 @@
                 class="tag is-dark"
               >
                 {{
-                  auth.currentUser.displayName
+                  user.displayName
                 }}
               </router-link>
             </p>
