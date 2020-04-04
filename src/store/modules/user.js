@@ -1,5 +1,5 @@
 const state = {
-  firebaseUser: {},
+  firebaseUser: null,
 };
 
 const mutations = {

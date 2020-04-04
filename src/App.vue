@@ -8,7 +8,7 @@
               Dixit 🔥
             </h1>
             <p
-              v-if="user && user.displayName !== null"
+              v-if="user && user.displayName !== null && user.displayName !== ''"
               class="subtitle"
             >
               <span>Signed in as</span>
