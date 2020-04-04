@@ -19,7 +19,12 @@ export default {
       (firebaseuser) => {
         user.value = firebaseuser;
 
-        context.root.$store.commit('user/setUser', firebaseuser);
+        const storeUser = {
+          ...firebaseuser,
+          displayName: '',
+        };
+
+        context.root.$store.commit('user/setUser', firebaseuser === null ? null : storeUser);
       },
     );
 
