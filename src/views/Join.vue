@@ -1,37 +1,17 @@
 <template>
   <section class="section">
-    <h3 class="title">
-      Set display name
-    </h3>
-    <div class="field">
-      <label
-        class="label"
-        for="display-name"
-      >Label</label>
-      <div class="control">
-        <input
-          id="display-name"
-          v-model="name"
-          class="input"
-          type="text"
-        >
-      </div>
-    </div>
-
-    <div class="field">
-      <button
-        class="button"
-        @click="join"
-      >
-        Join
-      </button>
-    </div>
+    <button
+      class="button"
+      @click="join"
+    >
+      Sign in with Google
+    </button>
   </section>
 </template>
 
 <script>
-import { auth, db } from '../firebase';
-import EventBus from '../EventBus';
+import firebase from 'firebase/app';
+import { auth } from '../firebase';
 
 export default {
   data() {
@@ -42,16 +22,10 @@ export default {
 
   methods: {
     async join() {
-      const user = await auth.signInAnonymously();
+      // eslint-disable-next-line new-cap
+      const provider = new firebase.auth.GoogleAuthProvider();
 
-      console.log(user);
-
-      await db.collection('users').add({
-        name: this.name,
-        uid: auth.currentUser.uid,
-      });
-
-      EventBus.$emit('userDisplayName', this.name);
+      await auth.signInWithPopup(provider);
     },
   },
 };

@@ -18,7 +18,7 @@
                 class="tag is-dark"
               >
                 {{
-                  user.displayName
+                  auth.currentUser.displayName
                 }}
               </router-link>
             </p>
@@ -33,11 +33,19 @@
 
 <script>
 import User from './components/User.vue';
+import { auth } from './firebase';
 
 export default {
+  name: 'App',
 
   components: {
     User,
+  },
+
+  data() {
+    return {
+      auth,
+    };
   },
 };
 </script>
