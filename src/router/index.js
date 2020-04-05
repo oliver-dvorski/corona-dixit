@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import NewRoom from '../views/NewRoom.vue';
 import UserProfile from '../views/UserProfile.vue';
+import Room from '../views/Room.vue';
 
 // import { auth } from '../firebase';
 
@@ -18,6 +19,11 @@ const routes = [
     path: '/new-room',
     name: 'NewRoom',
     component: NewRoom,
+  },
+  {
+    path: '/room/:id',
+    name: 'Room',
+    component: Room,
   },
   {
     path: '/profile',

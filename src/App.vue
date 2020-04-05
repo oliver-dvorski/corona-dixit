@@ -5,7 +5,9 @@
         <div class="hero-body">
           <div class="container">
             <h1 class="title">
-              Dixit 🔥
+              <router-link :to="{ name: 'Home' }">
+                Dixit 🔥
+              </router-link>
             </h1>
             <p
               v-if="user && user.displayName !== null && user.displayName !== ''"
@@ -49,3 +51,9 @@ export default {
   },
 };
 </script>
+
+<style>
+  .hero .title a {
+    color: inherit;
+  }
+</style>
