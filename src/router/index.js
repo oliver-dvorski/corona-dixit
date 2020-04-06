@@ -3,7 +3,8 @@ import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import NewRoom from '../views/NewRoom.vue';
 import UserProfile from '../views/UserProfile.vue';
-import Room from '../views/Room.vue';
+import Lobby from '../views/Lobby.vue';
+import Round from '../views/Round.vue';
 
 // import { auth } from '../firebase';
 
@@ -23,7 +24,12 @@ const routes = [
   {
     path: '/room/:id',
     name: 'Room',
-    component: Room,
+    component: Lobby,
+  },
+  {
+    path: '/room/:id/round/:number',
+    name: 'Round',
+    component: Round,
   },
   {
     path: '/profile',

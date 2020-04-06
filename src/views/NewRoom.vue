@@ -49,14 +49,18 @@ export default {
     async createGame() {
       this.loading = true;
 
+      const host = {
+        id: auth.currentUser.uid,
+        name: auth.currentUser.displayName,
+      };
+
       const newRoom = await db.collection('rooms').add({
         name: this.name,
-        host: {
-          id: auth.currentUser.uid,
-          name: auth.currentUser.displayName,
-        },
+        host,
         createdAt: Date.now(),
-        members: [],
+        members: [
+          host,
+        ],
       });
 
       this.name = '';
