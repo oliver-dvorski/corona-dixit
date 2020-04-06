@@ -6,6 +6,15 @@
 
     <div v-if="currentRound.story.text === '' || currentRound.story.card === ''">
       <WriteStory v-if="currentRound.storyTeller.id === auth.currentUser.uid" />
+
+      <div v-else>
+        <p class="title is-5">
+          Waiting on the storyteller to write the story
+        </p>
+        <p class="subtitle">
+          Storyteller for this round: <span class="has-text-weight-bold">{{ currentRound.storyTeller.name }}</span>
+        </p>
+      </div>
     </div>
   </section>
 </template>

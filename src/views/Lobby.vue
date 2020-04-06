@@ -39,6 +39,7 @@
 import { firestore } from 'firebase/app';
 import { auth, db } from '../firebase';
 import { getEmptyRoom } from '../utils/data';
+import { notify } from '../utils/notifications';
 
 export default {
   name: 'Room',
@@ -59,6 +60,8 @@ export default {
   watch: {
     room() {
       if (this.room && this.room.startedAt) {
+        notify('Game started');
+
         this.$router.push({
           name: 'Round',
           params: {
