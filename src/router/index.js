@@ -4,7 +4,7 @@ import Home from '../views/Home.vue';
 import NewRoom from '../views/NewRoom.vue';
 import UserProfile from '../views/UserProfile.vue';
 import Lobby from '../views/Lobby.vue';
-import Round from '../views/Round.vue';
+import Round from '../views/Round/Index.vue';
 
 // import { auth } from '../firebase';
 

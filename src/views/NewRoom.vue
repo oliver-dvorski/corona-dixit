@@ -61,6 +61,14 @@ export default {
         members: [
           host,
         ],
+        rounds: [{
+          storyTeller: host,
+          pool: [],
+          story: {
+            text: '',
+            card: '',
+          },
+        }],
       });
 
       this.name = '';

@@ -43,6 +43,7 @@
 <script>
 import { firestore } from 'firebase/app';
 import { auth, db } from '../firebase';
+import { getEmptyRoom } from '../utils/data';
 
 export default {
   name: 'Room',
@@ -50,14 +51,7 @@ export default {
   data() {
     return {
       auth,
-      room: {
-        name: '',
-        members: [],
-        host: {
-          name: '',
-          id: '',
-        },
-      },
+      room: getEmptyRoom(),
     };
   },
 
