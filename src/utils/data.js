@@ -7,6 +7,7 @@ export function getEmptyRoom() {
       name: '',
       id: '',
     },
+    startedAt: null,
     rounds: [
       {
         storyTeller: {

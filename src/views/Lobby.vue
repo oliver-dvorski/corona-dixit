@@ -23,17 +23,12 @@
 
       <div v-if="auth.currentUser.uid === room.host.id && room.members.length > 2">
         <div class="field">
-          <router-link
-            :to="{
-              name: 'Round',
-              params: {
-                number: 1
-              }
-            }"
+          <button
             class="button"
+            @click="startGame"
           >
             Start game
-          </router-link>
+          </button>
         </div>
       </div>
     </section>
@@ -61,6 +56,19 @@ export default {
     };
   },
 
+  watch: {
+    room() {
+      if (this.room && this.room.startedAt) {
+        this.$router.push({
+          name: 'Round',
+          params: {
+            number: 1,
+          },
+        });
+      }
+    },
+  },
+
   async mounted() {
     const userAlreadyMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
 
@@ -73,9 +81,13 @@ export default {
       });
     }
   },
+
+  methods: {
+    async startGame() {
+      await db.collection('rooms').doc(this.$route.params.id).update({
+        startedAt: Date.now(),
+      });
+    },
+  },
 };
 </script>
-
-<style scoped>
-
-</style>

@@ -100,7 +100,7 @@ export default {
 
   firestore() {
     return {
-      rooms: db.collection('rooms'),
+      rooms: db.collection('rooms').orderBy('createdAt', 'desc'),
     };
   },
 };
