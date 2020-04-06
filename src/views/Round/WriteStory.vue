@@ -1,7 +1,17 @@
 <template>
   <div>
+    <Loader :loading="loading" />
     <div class="field">
       <label class="label">Choose a card</label>
+
+      <div class="cards">
+        <div class="card" />
+        <div class="card" />
+        <div class="card" />
+        <div class="card" />
+        <div class="card" />
+        <div class="card" />
+      </div>
     </div>
 
     <div class="field">
@@ -32,12 +42,18 @@
 <script>
 import { getEmptyRoom } from '../../utils/data';
 import { db } from '../../firebase';
+import Loader from '../../components/Loader.vue';
 
 export default {
   name: 'WriteStory',
 
+  components: {
+    Loader,
+  },
+
   data() {
     return {
+      loading: false,
       text: '',
       room: getEmptyRoom(),
     };
@@ -51,6 +67,8 @@ export default {
 
   methods: {
     async submit() {
+      this.loading = true;
+
       const { rounds } = this.room;
 
       rounds[this.$route.params.number - 1].story.text = this.text;
@@ -60,7 +78,21 @@ export default {
         .update({
           rounds,
         });
+
+      this.loading = false;
     },
   },
 };
 </script>
+
+<style scoped lang="scss">
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-gap: 1rem;
+
+    .card {
+      min-height: 7rem;
+    }
+  }
+</style>
