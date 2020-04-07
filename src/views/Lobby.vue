@@ -32,6 +32,8 @@
         </div>
       </div>
     </section>
+
+    <Loader :loading="dealingCards" />
   </div>
 </template>
 
@@ -40,12 +42,18 @@ import { firestore } from 'firebase/app';
 import { auth, db, functions } from '../firebase';
 import { getEmptyRoom } from '../utils/data';
 import { notify } from '../utils/notifications';
+import Loader from '../components/Loader.vue';
 
 export default {
   name: 'Room',
 
+  components: {
+    Loader,
+  },
+
   data() {
     return {
+      dealingCards: false,
       auth,
       room: getEmptyRoom(),
     };
@@ -81,7 +89,7 @@ export default {
         });
       }
 
-      if (this.room.startedAt && userAlreadyMember) {
+      if (this.room.startedAt && userAlreadyMember && !this.dealingCards) {
         await notify('Game started');
 
         await this.$router.push({
@@ -96,6 +104,8 @@ export default {
 
   methods: {
     async startGame() {
+      this.dealingCards = true;
+
       await db.collection('rooms').doc(this.$route.params.id).update({
         startedAt: Date.now(),
       });
@@ -105,6 +115,8 @@ export default {
       await shuffle({
         roomID: this.$route.params.id,
       });
+
+      this.dealingCards = false;
     },
   },
 };
