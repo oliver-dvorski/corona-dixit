@@ -67,6 +67,10 @@ export default {
 
   watch: {
     async room() {
+      if (this.room === null) {
+        return;
+      }
+
       const userAlreadyMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
 
       if (this.room.startedAt && !userAlreadyMember) {

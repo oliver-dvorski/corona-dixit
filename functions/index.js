@@ -24,7 +24,6 @@ async function getHand(deck) {
 }
 
 exports.shuffleCards = functions
-  .region('europe-west2')
   .runWith({
     timeoutSeconds: 40,
     memory: '1GB',
