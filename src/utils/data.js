@@ -1,7 +1,11 @@
 export function getEmptyRoom() {
   return {
     name: '',
-    members: [],
+    members: [{
+      id: '',
+      name: '',
+      hand: [],
+    }],
     host: {
       name: '',
       id: '',

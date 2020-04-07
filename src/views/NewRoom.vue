@@ -52,12 +52,14 @@ export default {
       const host = {
         id: auth.currentUser.uid,
         name: auth.currentUser.displayName,
+        hand: [],
       };
 
       const newRoom = await db.collection('rooms').add({
         name: this.name,
         host,
         createdAt: Date.now(),
+        startedAt: null,
         members: [
           host,
         ],

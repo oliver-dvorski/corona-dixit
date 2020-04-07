@@ -37,7 +37,7 @@
 
 <script>
 import { firestore } from 'firebase/app';
-import { auth, db } from '../firebase';
+import { auth, db, functions } from '../firebase';
 import { getEmptyRoom } from '../utils/data';
 import { notify } from '../utils/notifications';
 
@@ -58,11 +58,33 @@ export default {
   },
 
   watch: {
-    room() {
-      if (this.room && this.room.startedAt) {
-        notify('Game started');
+    async room() {
+      const userAlreadyMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
 
-        this.$router.push({
+      if (this.room.startedAt && !userAlreadyMember) {
+        await notify('This room is full');
+
+        await this.$router.push({
+          name: 'Home',
+        });
+
+        return;
+      }
+
+      if (!userAlreadyMember && !this.room.startedAt) {
+        await db.collection('rooms').doc(this.$route.params.id).update({
+          members: firestore.FieldValue.arrayUnion({
+            id: auth.currentUser.uid,
+            name: auth.currentUser.displayName,
+            hand: [],
+          }),
+        });
+      }
+
+      if (this.room.startedAt && userAlreadyMember) {
+        await notify('Game started');
+
+        await this.$router.push({
           name: 'Round',
           params: {
             number: 1,
@@ -72,23 +94,16 @@ export default {
     },
   },
 
-  async mounted() {
-    const userAlreadyMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
-
-    if (!userAlreadyMember) {
-      await db.collection('rooms').doc(this.$route.params.id).update({
-        members: firestore.FieldValue.arrayUnion({
-          id: auth.currentUser.uid,
-          name: auth.currentUser.displayName,
-        }),
-      });
-    }
-  },
-
   methods: {
     async startGame() {
       await db.collection('rooms').doc(this.$route.params.id).update({
         startedAt: Date.now(),
+      });
+
+      const shuffle = functions.httpsCallable('shuffleCards');
+
+      await shuffle({
+        roomID: this.$route.params.id,
       });
     },
   },

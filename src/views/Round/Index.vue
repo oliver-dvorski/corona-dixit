@@ -22,6 +22,7 @@
 <script>
 import { auth, db } from '../../firebase';
 import WriteStory from './WriteStory.vue';
+import { getEmptyRoom } from '../../utils/data';
 
 export default {
   name: 'Round',
@@ -33,25 +34,7 @@ export default {
   data() {
     return {
       auth,
-      room: {
-        name: '',
-        members: [],
-        host: {
-          name: '',
-          id: '',
-        },
-        rounds: [{
-          storyTeller: {
-            name: '',
-            id: '',
-          },
-          pool: [],
-          story: {
-            text: '',
-            card: '',
-          },
-        }],
-      },
+      room: getEmptyRoom(),
     };
   },
 
