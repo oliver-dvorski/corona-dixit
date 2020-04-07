@@ -76,7 +76,6 @@ export default {
       if (currentRoomMember.hand.length > 0) {
         // eslint-disable-next-line no-restricted-syntax
         for (const fileName of currentRoomMember.hand) {
-          console.log(fileName);
           // eslint-disable-next-line no-await-in-loop
           this.hand.push(await storage.ref(fileName).getDownloadURL());
         }

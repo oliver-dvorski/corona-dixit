@@ -44,8 +44,6 @@ exports.shuffleCards = functions.https.onCall(async (data, context) => {
     member.hand = await getHand(deck);
   }
 
-  console.log({ members });
-
   await roomRef.update({
     members,
   });
