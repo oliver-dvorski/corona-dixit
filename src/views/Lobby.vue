@@ -45,7 +45,7 @@ import { notify } from '../utils/notifications';
 import Loader from '../components/Loader.vue';
 
 export default {
-  name: 'Room',
+  name: 'Lobby',
 
   components: {
     Loader,
@@ -53,7 +53,6 @@ export default {
 
   data() {
     return {
-      dealingCards: false,
       auth,
       room: getEmptyRoom(),
     };
@@ -65,15 +64,41 @@ export default {
     };
   },
 
-  watch: {
-    async room() {
-      if (this.room === null) {
+  computed: {
+    userAlreadyMember() {
+      if (!this.room || !auth.currentUser) {
         return;
       }
 
-      const userAlreadyMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
+      return this.room.members.find((member) => member.id === auth.currentUser.uid);
+    },
 
-      if (this.room.startedAt && !userAlreadyMember) {
+    cardsDealt() {
+      if (!this.room) {
+        return false;
+      }
+
+      let count = 0;
+
+      this.room.members.forEach((member) => {
+        count += member.hand.length;
+      });
+
+      return count === this.room.members.length * 6;
+    },
+
+    dealingCards() {
+      if (!this.room) {
+        return false;
+      }
+
+      return this.room.startedAt && !this.cardsDealt;
+    },
+  },
+
+  watch: {
+    async room() {
+      if (this.room.startedAt && !this.userAlreadyMember) {
         await notify('This room is full');
 
         await this.$router.push({
@@ -83,7 +108,7 @@ export default {
         return;
       }
 
-      if (!userAlreadyMember && !this.room.startedAt) {
+      if (!this.userAlreadyMember && !this.room.startedAt) {
         await db.collection('rooms').doc(this.$route.params.id).update({
           members: firestore.FieldValue.arrayUnion({
             id: auth.currentUser.uid,
@@ -92,8 +117,10 @@ export default {
           }),
         });
       }
+    },
 
-      if (this.room.startedAt && userAlreadyMember && !this.dealingCards) {
+    async dealingCards() {
+      if (this.room.startedAt && this.userAlreadyMember && !this.dealingCards) {
         await notify('Game started');
 
         await this.$router.push({
@@ -108,8 +135,6 @@ export default {
 
   methods: {
     async startGame() {
-      this.dealingCards = true;
-
       await db.collection('rooms').doc(this.$route.params.id).update({
         startedAt: Date.now(),
       });
@@ -119,8 +144,6 @@ export default {
       await shuffle({
         roomID: this.$route.params.id,
       });
-
-      this.dealingCards = false;
     },
   },
 };

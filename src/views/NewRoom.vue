@@ -78,7 +78,7 @@ export default {
       this.loading = false;
 
       await this.$router.push({
-        name: 'Room',
+        name: 'Lobby',
         params: {
           id: newRoom.id,
         },

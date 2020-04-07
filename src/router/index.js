@@ -23,7 +23,7 @@ const routes = [
   },
   {
     path: '/room/:id',
-    name: 'Room',
+    name: 'Lobby',
     component: Lobby,
   },
   {

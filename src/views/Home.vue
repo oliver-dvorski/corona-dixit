@@ -18,7 +18,7 @@
           :key="room.id"
           class="box room"
           :to="{
-            name: 'Room',
+            name: 'Lobby',
             params: {
               id: room.id
             }
