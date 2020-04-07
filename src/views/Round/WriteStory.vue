@@ -5,12 +5,16 @@
       <label class="label">Choose a card</label>
 
       <div class="cards">
-        <div class="card" />
-        <div class="card" />
-        <div class="card" />
-        <div class="card" />
-        <div class="card" />
-        <div class="card" />
+        <div
+          v-for="(card, index) in hand"
+          :key="index"
+          class="card"
+        >
+          <img
+            :src="card"
+            alt="Card"
+          >
+        </div>
       </div>
     </div>
 
@@ -41,7 +45,7 @@
 
 <script>
 import { getEmptyRoom } from '../../utils/data';
-import { db } from '../../firebase';
+import { auth, db, storage } from '../../firebase';
 import Loader from '../../components/Loader.vue';
 
 export default {
@@ -55,6 +59,7 @@ export default {
     return {
       loading: false,
       text: '',
+      hand: [],
       room: getEmptyRoom(),
     };
   },
@@ -64,6 +69,33 @@ export default {
       room: db.collection('rooms').doc(this.$route.params.id),
     };
   },
+
+  watch: {
+    async room() {
+      const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
+      if (currentRoomMember.hand.length > 0) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const fileName of currentRoomMember.hand) {
+          console.log(fileName);
+          // eslint-disable-next-line no-await-in-loop
+          this.hand.push(await storage.ref(fileName).getDownloadURL());
+        }
+      }
+    },
+  },
+
+  // computed: {
+  //   handURLs() {
+  //
+  //     const list = [];
+  //
+  //     for (const cardID of currentRoomMember.hand) {
+  //       list.push(await storage.ref(cardID).getDownloadURL());
+  //     }
+  //
+  //     return list;
+  //   },
+  // },
 
   methods: {
     async submit() {
@@ -93,6 +125,12 @@ export default {
 
     .card {
       min-height: 7rem;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
     }
   }
 </style>
