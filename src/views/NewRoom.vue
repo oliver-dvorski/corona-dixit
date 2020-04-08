@@ -57,7 +57,10 @@ export default {
 
       const newRoom = await db.collection('rooms').add({
         name: this.name,
-        host,
+        host: {
+          id: host.id,
+          name: host.name,
+        },
         createdAt: Date.now(),
         startedAt: null,
         members: [

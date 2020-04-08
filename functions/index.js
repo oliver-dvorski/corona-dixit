@@ -36,17 +36,26 @@ exports.shuffleCards = functions
   .onCall(async (data, context) => {
     const { roomID } = data;
 
-    admin.firestore().collection('rooms').doc(roomID);
-
-    const storageCollection = await storage.bucket('corona-dixit.appspot.com').getFiles();
-
-    const deck = storageCollection[0].map((storageObject) => storageObject.name);
-
     const roomRef = admin.firestore().collection('rooms').doc(roomID);
 
     const roomSnapshot = await roomRef.get();
 
     const members = roomSnapshot.get('members');
+
+    let cardsAlreadyDealt = false;
+    members.forEach((member) => {
+      if (member.hand.length === 6) {
+        cardsAlreadyDealt = true;
+      }
+    });
+
+    if (cardsAlreadyDealt) {
+      return;
+    }
+
+    const storageCollection = await storage.bucket('corona-dixit.appspot.com').getFiles();
+
+    const deck = storageCollection[0].map((storageObject) => storageObject.name);
 
     for (const member of members) {
       member.hand = await getHand(deck);
