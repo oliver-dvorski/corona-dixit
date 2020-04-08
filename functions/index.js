@@ -17,7 +17,11 @@ async function getHand(deck) {
   const hand = [];
 
   for (let i = 0; i < 6; i++) {
-    hand.push(deck[Math.floor(Math.random() * deck.length)].name);
+    const randomIndex = Math.floor(Math.random() * deck.length);
+
+    hand.push(deck[randomIndex]);
+
+    deck.splice(randomIndex, 1);
   }
 
   return hand;
@@ -34,10 +38,9 @@ exports.shuffleCards = functions
 
     admin.firestore().collection('rooms').doc(roomID);
 
-    let deck = await storage.bucket('corona-dixit.appspot.com').getFiles();
+    const storageCollection = await storage.bucket('corona-dixit.appspot.com').getFiles();
 
-    deck = deck[0];
-
+    const deck = storageCollection[0].map((storageObject) => storageObject.name);
 
     const roomRef = admin.firestore().collection('rooms').doc(roomID);
 
@@ -46,7 +49,6 @@ exports.shuffleCards = functions
     const members = roomSnapshot.get('members');
 
     for (const member of members) {
-    // eslint-disable-next-line no-await-in-loop
       member.hand = await getHand(deck);
     }
 
