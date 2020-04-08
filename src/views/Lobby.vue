@@ -41,7 +41,6 @@
 import { firestore } from 'firebase/app';
 import { auth, db, functions } from '../firebase';
 import { getEmptyRoom } from '../utils/data';
-import { notify } from '../utils/notifications';
 import Loader from '../components/Loader.vue';
 
 export default {
@@ -103,8 +102,6 @@ export default {
       }
 
       if (this.room.startedAt && !this.userAlreadyMember) {
-        await notify('This room is full');
-
         await this.$router.push({
           name: 'Home',
         });
@@ -129,8 +126,6 @@ export default {
       }
 
       if (this.room.startedAt && this.userAlreadyMember && !this.dealingCards) {
-        await notify('Game started');
-
         await this.$router.push({
           name: 'Round',
           params: {
