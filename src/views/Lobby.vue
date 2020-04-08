@@ -98,6 +98,10 @@ export default {
 
   watch: {
     async room() {
+      if (!this.room) {
+        return;
+      }
+
       if (this.room.startedAt && !this.userAlreadyMember) {
         await notify('This room is full');
 
@@ -120,6 +124,10 @@ export default {
     },
 
     async dealingCards() {
+      if (!this.room) {
+        return false;
+      }
+
       if (this.room.startedAt && this.userAlreadyMember && !this.dealingCards) {
         await notify('Game started');
 
