@@ -16,6 +16,8 @@ module.exports = {
     'no-return-assign': 'off',
     'max-len': 'off',
     'consistent-return': 'off',
-    'import/prefer-default-export': 'off'
+    'import/prefer-default-export': 'off',
+    'no-restricted-syntax': 'off',
+    'no-await-in-loop': 'off'
   },
 };

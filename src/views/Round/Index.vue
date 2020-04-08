@@ -14,13 +14,27 @@
         <p class="subtitle">
           Storyteller for this round: <span class="has-text-weight-bold">{{ currentRound.storyTeller.name }}</span>
         </p>
+
+        <p>While you're waiting, take a look at the cards in your hand:</p>
+        <div class="cards">
+          <div
+            v-for="(card, index) in hand"
+            :key="index"
+            class="card"
+          >
+            <img
+              :src="card"
+              alt="Card"
+            >
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script>
-import { auth, db } from '../../firebase';
+import { auth, db, storage } from '../../firebase';
 import WriteStory from './WriteStory.vue';
 import { getEmptyRoom } from '../../utils/data';
 
@@ -34,6 +48,7 @@ export default {
   data() {
     return {
       auth,
+      hand: [],
       room: getEmptyRoom(),
     };
   },
@@ -47,6 +62,22 @@ export default {
   computed: {
     currentRound() {
       return this.room.rounds[this.$route.params.number - 1];
+    },
+  },
+
+  watch: {
+    async room() {
+      if (!this.room) {
+        return;
+      }
+
+      const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
+
+      if (currentRoomMember.hand.length > 0) {
+        for (const fileName of currentRoomMember.hand) {
+          this.hand.push(await storage.ref(fileName).getDownloadURL());
+        }
+      }
     },
   },
 };

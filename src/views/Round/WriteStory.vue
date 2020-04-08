@@ -74,9 +74,7 @@ export default {
     async room() {
       const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
       if (currentRoomMember.hand.length > 0) {
-        // eslint-disable-next-line no-restricted-syntax
         for (const fileName of currentRoomMember.hand) {
-          // eslint-disable-next-line no-await-in-loop
           this.hand.push(await storage.ref(fileName).getDownloadURL());
         }
       }
@@ -115,21 +113,3 @@ export default {
   },
 };
 </script>
-
-<style scoped lang="scss">
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    grid-gap: 1rem;
-
-    .card {
-      min-height: 7rem;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-  }
-</style>
