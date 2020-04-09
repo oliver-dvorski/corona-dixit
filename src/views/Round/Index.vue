@@ -18,18 +18,7 @@
         <p class="label">
           While you're waiting, take a look at the cards in your hand:
         </p>
-        <div class="cards">
-          <div
-            v-for="(card, index) in hand"
-            :key="index"
-            class="card"
-          >
-            <img
-              :src="card"
-              alt="Card"
-            >
-          </div>
-        </div>
+        <Cards :hand="hand" />
       </div>
     </div>
   </section>
@@ -38,6 +27,7 @@
 <script>
 import { auth, db, storage } from '../../firebase';
 import WriteStory from './WriteStory.vue';
+import Cards from '../../components/Cards.vue';
 import { getEmptyRoom } from '../../utils/data';
 
 export default {
@@ -45,6 +35,7 @@ export default {
 
   components: {
     WriteStory,
+    Cards,
   },
 
   data() {

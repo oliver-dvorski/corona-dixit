@@ -4,18 +4,10 @@
     <div class="field">
       <label class="label">Choose a card</label>
 
-      <div class="cards">
-        <div
-          v-for="(card, index) in hand"
-          :key="index"
-          class="card"
-        >
-          <img
-            :src="card"
-            alt="Card"
-          >
-        </div>
-      </div>
+      <Cards
+        v-model="card"
+        :hand="hand"
+      />
     </div>
 
     <div class="field">
@@ -47,18 +39,21 @@
 import { getEmptyRoom } from '../../utils/data';
 import { auth, db, storage } from '../../firebase';
 import Loader from '../../components/Loader.vue';
+import Cards from '../../components/Cards.vue';
 
 export default {
   name: 'WriteStory',
 
   components: {
     Loader,
+    Cards,
   },
 
   data() {
     return {
       loading: false,
       text: '',
+      card: '',
       hand: [],
       room: getEmptyRoom(),
     };
