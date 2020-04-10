@@ -1,34 +1,19 @@
 <template>
   <div>
     <Loader :loading="loading" />
-    <div class="field">
-      <label class="label">Choose a card</label>
 
-      <Cards
-        v-model="card"
-        :hand="hand"
-      />
-    </div>
-
-    <div class="field">
-      <label
-        for="story"
-        class="label"
-      >Write the story</label>
-      <input
-        id="story"
-        v-model="text"
-        type="text"
-        class="input"
-        @keydown.enter="submit"
-      >
-    </div>
+    <p class="label">
+      Cast your vote
+    </p>
+    <Cards
+      v-model="vote"
+      :hand="hand"
+    />
 
     <div class="field">
       <button
         class="button"
-        :disabled="card === '' || text === ''"
-        @click="submit"
+        @click="castVote"
       >
         Submit
       </button>
@@ -37,26 +22,25 @@
 </template>
 
 <script>
+import Cards from '../../components/Cards.vue';
+import Loader from '../../components/Loader.vue';
 import { getEmptyRoom } from '../../utils/data';
 import { auth, db, storage } from '../../firebase';
-import Loader from '../../components/Loader.vue';
-import Cards from '../../components/Cards.vue';
 
 export default {
-  name: 'WriteStory',
+  name: 'Vote',
 
   components: {
-    Loader,
     Cards,
+    Loader,
   },
 
   data() {
     return {
       loading: false,
-      text: '',
-      card: '',
       hand: [],
       room: getEmptyRoom(),
+      vote: '',
     };
   },
 
@@ -68,8 +52,15 @@ export default {
 
   watch: {
     async room() {
+      if (!this.room || !auth.currentUser) {
+        return;
+      }
+
       const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
+
       if (currentRoomMember.hand.length > 0) {
+        this.hand = [];
+
         for (const fileName of currentRoomMember.hand) {
           this.hand.push(await storage.ref(fileName).getDownloadURL());
         }
@@ -78,18 +69,16 @@ export default {
   },
 
   methods: {
-    async submit() {
-      if (this.card === '' || this.text === '') {
-        return;
-      }
-
+    async castVote() {
       this.loading = true;
 
       const { rounds } = this.room;
 
-      rounds[this.$route.params.number - 1].story.text = this.text;
-
-      rounds[this.$route.params.number - 1].story.card = this.card;
+      rounds[this.$route.params.number - 1].pool.push({
+        file: this.vote,
+        setBy: auth.currentUser.uid,
+        chosenBy: '',
+      });
 
       await db.collection('rooms')
         .doc(this.$route.params.id)

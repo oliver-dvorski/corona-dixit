@@ -15,10 +15,10 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
-if (process.env.NODE_ENV === 'development') {
-  firebase.functions().useFunctionsEmulator('http://localhost:5001');
-}
+//
+// if (process.env.NODE_ENV === 'development') {
+//   firebase.functions().useFunctionsEmulator('http://localhost:5001');
+// }
 
 
 export const db = firebase.firestore();
