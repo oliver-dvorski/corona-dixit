@@ -38,8 +38,8 @@
 </template>
 
 <script>
-import { auth, db, functions } from '../firebase';
-import { getEmptyRoom } from '../utils/data';
+import { auth, db } from '../firebase';
+import { getEmptyRoom, getEmptyRound } from '../utils/data';
 import Loader from '../components/Loader.vue';
 
 export default {
@@ -53,14 +53,27 @@ export default {
     return {
       auth,
       room: getEmptyRoom(),
+      rounds: [],
       members: [],
     };
   },
 
   firestore() {
     return {
-      room: db.collection('rooms').doc(this.$route.params.id),
-      members: db.collection('rooms').doc(this.$route.params.id).collection('members'),
+      room: db
+        .collection('rooms')
+        .doc(this.$route.params.id),
+
+      rounds: db
+        .collection('rooms')
+        .doc(this.$route.params.id)
+        .collection('rounds')
+        .orderBy('number', 'desc'),
+
+      members: db
+        .collection('rooms')
+        .doc(this.$route.params.id)
+        .collection('members'),
     };
   },
 
@@ -89,15 +102,11 @@ export default {
   },
 
   watch: {
-    async room() {
-      if (!this.room) {
-        return;
-      }
+    room() {
+      const userAlreadyMember = this.members.find((member) => member.uid === auth.currentUser.uid);
 
-      if (this.room.startedAt && !this.userAlreadyMember) {
-        await this.$router.push({
-          name: 'Home',
-        });
+      if (this.room.startedAt && userAlreadyMember) {
+        this.resumeRound();
       }
     },
 
@@ -107,6 +116,14 @@ export default {
       }
 
       const userAlreadyMember = this.members.find((member) => member.uid === auth.currentUser.uid);
+
+      if (this.room.startedAt && !userAlreadyMember) {
+        this.goHome();
+      }
+
+      if (this.room.startedAt && userAlreadyMember) {
+        this.resumeRound();
+      }
 
       if (!this.room.startedAt && !userAlreadyMember) {
         await db
@@ -122,15 +139,48 @@ export default {
   },
 
   methods: {
-    async startGame() {
-      await db.collection('rooms').doc(this.$route.params.id).update({
-        startedAt: Date.now(),
+    goHome() {
+      this.$router.push({
+        name: 'Home',
       });
+    },
 
-      const shuffle = functions.httpsCallable('shuffleCards');
+    resumeRound() {
+      this.$router.push({
+        name: 'Round',
+        params: {
+          roomID: this.room.id,
+          roundID: this.rounds[this.rounds.length - 1].id,
+        },
+      });
+    },
 
-      await shuffle({
-        roomID: this.$route.params.id,
+    async startGame() {
+      await db
+        .collection('rooms')
+        .doc(this.$route.params.id)
+        .update({
+          startedAt: Date.now(),
+        });
+
+      const newRound = await db
+        .collection('rooms')
+        .doc(this.$route.params.id)
+        .collection('rounds')
+        .add(getEmptyRound());
+
+      // const shuffle = functions.httpsCallable('shuffleCards');
+      //
+      // await shuffle({
+      //   roomID: this.$route.params.id,
+      // });
+
+      await this.$router.push({
+        name: 'Round',
+        params: {
+          roomID: this.room.id,
+          roundID: newRound.id,
+        },
       });
     },
   },
