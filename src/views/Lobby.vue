@@ -1,27 +1,29 @@
 <template>
   <div>
+    <Loader :loading="!room.host.uid" />
+
     <section
-      v-if="room"
+      v-if="room.host.uid"
       class="section"
     >
       <h1 class="title">
-        {{ room.name }} ({{ room.members.length }})
+        {{ room.name }} ({{ members.length }})
       </h1>
       <p>Waiting for players to connect...</p>
 
       <div class="content">
         <ul>
           <li
-            v-for="member in room.members"
-            :key="member.id"
-            :class="{'has-text-primary': member.id === room.host.id}"
+            v-for="member in members"
+            :key="member.uid"
+            :class="{'has-text-primary': member.uid === room.host.uid}"
           >
             {{ member.name }}
           </li>
         </ul>
       </div>
 
-      <div v-if="auth.currentUser.uid === room.host.id && room.members.length > 2">
+      <div v-if="room.host.uid && auth.currentUser.uid === room.host.uid && members.length > 2">
         <div class="field">
           <button
             class="button"
@@ -32,13 +34,10 @@
         </div>
       </div>
     </section>
-
-    <Loader :loading="dealingCards" />
   </div>
 </template>
 
 <script>
-import { firestore } from 'firebase/app';
 import { auth, db, functions } from '../firebase';
 import { getEmptyRoom } from '../utils/data';
 import Loader from '../components/Loader.vue';
@@ -54,24 +53,18 @@ export default {
     return {
       auth,
       room: getEmptyRoom(),
+      members: [],
     };
   },
 
   firestore() {
     return {
       room: db.collection('rooms').doc(this.$route.params.id),
+      members: db.collection('rooms').doc(this.$route.params.id).collection('members'),
     };
   },
 
   computed: {
-    userAlreadyMember() {
-      if (!this.room || !auth.currentUser) {
-        return;
-      }
-
-      return this.room.members.find((member) => member.id === auth.currentUser.uid);
-    },
-
     cardsDealt() {
       if (!this.room) {
         return false;
@@ -79,11 +72,11 @@ export default {
 
       let count = 0;
 
-      this.room.members.forEach((member) => {
+      this.members.forEach((member) => {
         count += member.hand.length;
       });
 
-      return count === this.room.members.length * 6;
+      return count === this.members.length * 6;
     },
 
     dealingCards() {
@@ -105,33 +98,25 @@ export default {
         await this.$router.push({
           name: 'Home',
         });
-
-        return;
-      }
-
-      if (!this.userAlreadyMember && !this.room.startedAt) {
-        await db.collection('rooms').doc(this.$route.params.id).update({
-          members: firestore.FieldValue.arrayUnion({
-            id: auth.currentUser.uid,
-            name: auth.currentUser.displayName,
-            hand: [],
-          }),
-        });
       }
     },
 
-    async dealingCards() {
-      if (!this.room) {
-        return false;
+    async members() {
+      if (this.members.length === 0) {
+        return;
       }
 
-      if (this.room.startedAt && this.userAlreadyMember && !this.dealingCards) {
-        await this.$router.push({
-          name: 'Round',
-          params: {
-            number: 1,
-          },
-        });
+      const userAlreadyMember = this.members.find((member) => member.uid === auth.currentUser.uid);
+
+      if (!this.room.startedAt && !userAlreadyMember) {
+        await db
+          .collection('rooms')
+          .doc(this.$route.params.id)
+          .collection('members')
+          .add({
+            uid: auth.currentUser.uid,
+            name: auth.currentUser.displayName,
+          });
       }
     },
   },

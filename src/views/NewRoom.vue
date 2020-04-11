@@ -50,31 +50,18 @@ export default {
       this.loading = true;
 
       const host = {
-        id: auth.currentUser.uid,
+        uid: auth.currentUser.uid,
         name: auth.currentUser.displayName,
-        hand: [],
       };
 
       const newRoom = await db.collection('rooms').add({
         name: this.name,
-        host: {
-          id: host.id,
-          name: host.name,
-        },
+        host,
         createdAt: Date.now(),
         startedAt: null,
-        members: [
-          host,
-        ],
-        rounds: [{
-          storyTeller: host,
-          pool: [],
-          story: {
-            text: '',
-            card: '',
-          },
-        }],
       });
+
+      await newRoom.collection('members').add(host);
 
       this.name = '';
 
