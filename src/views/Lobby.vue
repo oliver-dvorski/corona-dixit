@@ -78,26 +78,12 @@ export default {
   },
 
   computed: {
-    cardsDealt() {
-      if (!this.room) {
-        return false;
+    latestRound() {
+      if (this.rounds.length === 0) {
+        return null;
       }
 
-      let count = 0;
-
-      this.members.forEach((member) => {
-        count += member.hand.length;
-      });
-
-      return count === this.members.length * 6;
-    },
-
-    dealingCards() {
-      if (!this.room) {
-        return false;
-      }
-
-      return this.room.startedAt && !this.cardsDealt;
+      return this.rounds[this.rounds.length - 1];
     },
   },
 
@@ -146,13 +132,15 @@ export default {
     },
 
     resumeRound() {
-      this.$router.push({
-        name: 'Round',
-        params: {
-          roomID: this.room.id,
-          roundID: this.rounds[this.rounds.length - 1].id,
-        },
-      });
+      if (this.latestRound) {
+        this.$router.push({
+          name: 'Round',
+          params: {
+            roomID: this.room.id,
+            roundID: this.latestRound.id,
+          },
+        });
+      }
     },
 
     async startGame() {
@@ -167,7 +155,13 @@ export default {
         .collection('rooms')
         .doc(this.$route.params.id)
         .collection('rounds')
-        .add(getEmptyRound());
+        .add({
+          ...getEmptyRound(),
+          storyTeller: {
+            name: auth.currentUser.displayName,
+            uid: auth.currentUser.uid,
+          },
+        });
 
       // const shuffle = functions.httpsCallable('shuffleCards');
       //

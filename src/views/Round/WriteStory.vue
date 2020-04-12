@@ -37,8 +37,8 @@
 </template>
 
 <script>
-import { getEmptyRoom } from '../../utils/data';
-import { auth, db, storage } from '../../firebase';
+import { getEmptyRound } from '../../utils/data';
+import { db } from '../../firebase';
 import Loader from '../../components/Loader.vue';
 import Cards from '../../components/Cards.vue';
 
@@ -56,26 +56,26 @@ export default {
       text: '',
       card: '',
       hand: [],
-      room: getEmptyRoom(),
+      round: getEmptyRound(),
     };
   },
 
   firestore() {
     return {
-      room: db.collection('rooms').doc(this.$route.params.id),
+      round: db.collection(`rooms/${this.$route.params.roomID}/rounds/`).doc(this.$route.params.roundID),
     };
   },
 
-  watch: {
-    async room() {
-      const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
-      if (currentRoomMember.hand.length > 0) {
-        for (const fileName of currentRoomMember.hand) {
-          this.hand.push(await storage.ref(fileName).getDownloadURL());
-        }
-      }
-    },
-  },
+  // watch: {
+  //   async room() {
+  //     const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
+  //     if (currentRoomMember.hand.length > 0) {
+  //       for (const fileName of currentRoomMember.hand) {
+  //         this.hand.push(await storage.ref(fileName).getDownloadURL());
+  //       }
+  //     }
+  //   },
+  // },
 
   methods: {
     async submit() {
@@ -85,16 +85,14 @@ export default {
 
       this.loading = true;
 
-      const { rounds } = this.room;
-
-      rounds[this.$route.params.number - 1].story.text = this.text;
-
-      rounds[this.$route.params.number - 1].story.card = this.card;
-
-      await db.collection('rooms')
-        .doc(this.$route.params.id)
+      await db
+        .collection(`rooms/${this.$route.params.roomID}/rounds/`)
+        .doc(this.$route.params.roundID)
         .update({
-          rounds,
+          story: {
+            card: this.card,
+            text: this.text,
+          },
         });
 
       this.loading = false;

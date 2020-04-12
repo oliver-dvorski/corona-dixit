@@ -9,8 +9,8 @@
 
     <pre>{{ round }}</pre>
 
-    <!--    <div v-if="!voting && auth.currentUser">-->
-    <!--      <WriteStory v-if="currentRound.storyTeller.id === auth.currentUser.uid" />-->
+    <div v-if="!voting">
+      <WriteStory v-if="round.storyTeller.uid === auth.currentUser.uid" />
 
     <!--      <div v-else>-->
     <!--        <p class="title is-5">-->
@@ -35,13 +35,13 @@
     <!--      <Vote v-if="currentRound.storyTeller.id !== auth.currentUser.uid" />-->
 
     <!--      <Pool v-else />-->
-    <!--    </div>-->
+    </div>
   </section>
 </template>
 
 <script>
 import { auth, db } from '../../firebase';
-// import WriteStory from './WriteStory.vue';
+import WriteStory from './WriteStory.vue';
 // import Cards from '../../components/Cards.vue';
 // import Vote from './Vote.vue';
 // import Pool from './PopulatePool.vue';
@@ -50,12 +50,12 @@ import { getEmptyRoom, getEmptyRound } from '../../utils/data';
 export default {
   name: 'Round',
 
-  // components: {
-  //   WriteStory,
-  //   Vote,
-  //   Pool,
-  //   Cards,
-  // },
+  components: {
+    WriteStory,
+    // Vote,
+    // Pool,
+    // Cards,
+  },
 
   data() {
     return {
@@ -80,15 +80,15 @@ export default {
     };
   },
 
-  // computed: {
-  //   currentRound() {
-  //     return this.room.rounds[this.$route.params.number - 1];
-  //   },
-  //
-  //   voting() {
-  //     return this.currentRound.story.text !== '' && this.currentRound.story.card !== '';
-  //   },
-  // },
+  computed: {
+    // currentRound() {
+    //   return this.room.rounds[this.$route.params.number - 1];
+    // },
+
+    voting() {
+      return this.round.story.text !== '' && this.round.story.card !== '';
+    },
+  },
 
   // watch: {
   //   async room() {

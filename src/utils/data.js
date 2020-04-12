@@ -16,6 +16,10 @@ export function getEmptyRound() {
       text: '',
       card: '',
     },
+    storyTeller: {
+      name: '',
+      uid: '',
+    },
     pool: [],
   };
 }
