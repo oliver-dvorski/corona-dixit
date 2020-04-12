@@ -38,7 +38,7 @@
 
 <script>
 import { getEmptyRound } from '../../utils/data';
-import { db } from '../../firebase';
+import { auth, db } from '../../firebase';
 import Loader from '../../components/Loader.vue';
 import Cards from '../../components/Cards.vue';
 
@@ -66,16 +66,19 @@ export default {
     };
   },
 
-  // watch: {
-  //   async room() {
-  //     const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
-  //     if (currentRoomMember.hand.length > 0) {
-  //       for (const fileName of currentRoomMember.hand) {
-  //         this.hand.push(await storage.ref(fileName).getDownloadURL());
-  //       }
-  //     }
-  //   },
-  // },
+  watch: {
+    round() {
+      db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('members')
+        .where('uid', '==', auth.currentUser.uid)
+        .get()
+        .then((snapshot) => {
+          this.hand = snapshot.docs[0].data().hand;
+        });
+    },
+  },
 
   methods: {
     async submit() {
@@ -86,7 +89,7 @@ export default {
       this.loading = true;
 
       await db
-        .collection(`rooms/${this.$route.params.roomID}/rounds/`)
+        .collection(`rooms/${this.$route.params.roomID}/rounds`)
         .doc(this.$route.params.roundID)
         .update({
           story: {

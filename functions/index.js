@@ -13,7 +13,7 @@ const storage = new Storage({
   keyFilename: './service-account.json',
 });
 
-async function getHand(deck) {
+async function dealHand(deck) {
   const hand = [];
 
   for (let i = 0; i < 6; i++) {
@@ -28,40 +28,22 @@ async function getHand(deck) {
 }
 
 exports.shuffleCards = functions
-  .runWith({
-    timeoutSeconds: 40,
-    memory: '1GB',
-  })
-  .https
-  .onCall(async (data, context) => {
-    const { roomID } = data;
+  .firestore
+  .document('rooms/{roomID}/rounds/{roundID}')
+  .onCreate(async (change, context) => {
+    const roomRef = admin
+      .firestore()
+      .collection('rooms')
+      .doc(context.params.roomID);
 
-    const roomRef = admin.firestore().collection('rooms').doc(roomID);
-
-    const roomSnapshot = await roomRef.get();
-
-    const members = roomSnapshot.get('members');
-
-    let cardsAlreadyDealt = false;
-    members.forEach((member) => {
-      if (member.hand.length === 6) {
-        cardsAlreadyDealt = true;
-      }
-    });
-
-    if (cardsAlreadyDealt) {
-      return;
-    }
+    const membersSnapshot = await roomRef.collection('members').get();
 
     const storageCollection = await storage.bucket('corona-dixit.appspot.com').getFiles();
-
     const deck = storageCollection[0].map((storageObject) => storageObject.name);
 
-    for (const member of members) {
-      member.hand = await getHand(deck);
-    }
-
-    await roomRef.update({
-      members,
+    membersSnapshot.forEach(async (member) => {
+      await roomRef.collection('members').doc(member.id).update({
+        hand: await dealHand(deck),
+      });
     });
   });

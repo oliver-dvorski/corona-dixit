@@ -1,14 +1,14 @@
 <template>
   <div class="cards">
     <div
-      v-for="(card, index) in hand"
+      v-for="(card, index) in images"
       :key="index"
       class="card"
-      :class="{ 'selected' : selected === card }"
-      @click="$emit('select', card)"
+      :class="{ 'selected' : selected === card.ref }"
+      @click="$emit('select', card.ref)"
     >
       <svg
-        v-if="card === selected"
+        v-if="card.ref === selected"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -21,7 +21,7 @@
         fill="currentColor"
       /></g></svg>
       <img
-        :src="card"
+        :src="card.link"
         alt="Card"
       >
     </div>
@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import { storage } from '../firebase';
+
 export default {
   name: 'Cards',
 
@@ -51,6 +53,27 @@ export default {
     selectable: {
       type: Boolean,
       default: false,
+    },
+  },
+
+  data() {
+    return {
+      images: [],
+    };
+  },
+
+  watch: {
+    hand() {
+      this.images = [];
+
+      this.hand.forEach(async (ref) => {
+        const link = await storage.ref(ref).getDownloadURL();
+
+        this.images.push({
+          ref,
+          link,
+        });
+      });
     },
   },
 };

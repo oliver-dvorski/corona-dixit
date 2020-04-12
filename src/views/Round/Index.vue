@@ -9,7 +9,7 @@
 
     <pre>{{ round }}</pre>
 
-    <div v-if="!voting">
+    <div v-if="round.id && !voting">
       <WriteStory v-if="round.storyTeller.uid === auth.currentUser.uid" />
 
     <!--      <div v-else>-->
@@ -60,7 +60,6 @@ export default {
   data() {
     return {
       auth,
-      hand: [],
       room: getEmptyRoom(),
       round: getEmptyRound(),
     };
@@ -86,6 +85,7 @@ export default {
     // },
 
     voting() {
+      // TODO: Add a check for pool size (we're not voting if the pool equals the number of members in the room)
       return this.round.story.text !== '' && this.round.story.card !== '';
     },
   },
