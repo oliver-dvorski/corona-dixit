@@ -12,13 +12,14 @@
     <div v-if="round.id && !voting">
       <WriteStory v-if="round.storyTeller.uid === auth.currentUser.uid" />
 
-    <!--      <div v-else>-->
-    <!--        <p class="title is-5">-->
-    <!--          Waiting on the storyteller to write the story-->
-    <!--        </p>-->
-    <!--        <p class="subtitle">-->
-    <!--          Storyteller for this round: <span class="has-text-weight-bold">{{ currentRound.storyTeller.name }}</span>-->
-    <!--        </p>-->
+      <div v-else>
+        <p class="title is-5">
+          Waiting on the storyteller to write the story
+        </p>
+        <p class="subtitle">
+          Storyteller for this round: <span class="has-text-weight-bold">{{ round.storyTeller.name }}</span>
+        </p>
+      </div>
 
     <!--        <p class="label">-->
     <!--          While you're waiting, take a look at the cards in your hand:-->

@@ -68,14 +68,23 @@ export default {
 
   watch: {
     round() {
-      db
+      const membersRef = db
         .collection('rooms')
         .doc(this.$route.params.roomID)
-        .collection('members')
+        .collection('members');
+
+      membersRef
         .where('uid', '==', auth.currentUser.uid)
         .get()
-        .then((snapshot) => {
-          this.hand = snapshot.docs[0].data().hand;
+        .then((snap) => {
+          membersRef
+            .doc(snap.docs[0].id)
+            .collection('hand')
+            .where('roundID', '==', this.round.id)
+            .get()
+            .then((handSnap) => {
+              this.hand = handSnap.docs[0].data().cards;
+            });
         });
     },
   },

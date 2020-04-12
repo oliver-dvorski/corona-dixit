@@ -63,7 +63,11 @@ export default {
   },
 
   watch: {
-    hand() {
+    hand(newValue, oldValue) {
+      if (JSON.stringify(newValue) === JSON.stringify(oldValue)) {
+        return;
+      }
+
       this.images = [];
 
       this.hand.forEach(async (ref) => {
