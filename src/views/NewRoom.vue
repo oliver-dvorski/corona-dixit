@@ -61,7 +61,7 @@ export default {
         startedAt: null,
       });
 
-      await newRoom.collection('members').add(host);
+      await newRoom.collection('members').doc(host.uid).set(host);
 
       this.name = '';
 

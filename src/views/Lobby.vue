@@ -116,7 +116,8 @@ export default {
           .collection('rooms')
           .doc(this.$route.params.id)
           .collection('members')
-          .add({
+          .doc(auth.currentUser.uid)
+          .set({
             uid: auth.currentUser.uid,
             name: auth.currentUser.displayName,
           });

@@ -42,9 +42,10 @@ exports.shuffleCards = functions
     const deck = storageCollection[0].map((storageObject) => storageObject.name);
 
     membersSnapshot.forEach(async (member) => {
-      roomRef.collection('members').doc(member.id).collection('hand').add({
-        roundID: context.params.roundID,
-        cards: await dealHand(deck),
-      });
+      roomRef.collection('members').doc(member.id).collection('hand').doc(context.params.roundID)
+        .set({
+          roundID: context.params.roundID,
+          cards: await dealHand(deck),
+        });
     });
   });

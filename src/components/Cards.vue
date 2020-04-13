@@ -63,21 +63,29 @@ export default {
   },
 
   watch: {
-    hand(newValue, oldValue) {
-      if (JSON.stringify(newValue) === JSON.stringify(oldValue)) {
-        return;
-      }
-
-      this.images = [];
-
-      this.hand.forEach(async (ref) => {
-        const link = await storage.ref(ref).getDownloadURL();
-
-        this.images.push({
-          ref,
-          link,
+    hand: {
+      immediate: true,
+      handler(newValue, oldValue) {
+        console.log({
+          newValue,
+          oldValue,
         });
-      });
+
+        if (JSON.stringify(newValue) === JSON.stringify(oldValue)) {
+          return;
+        }
+
+        this.images = [];
+
+        this.hand.forEach(async (ref) => {
+          const link = await storage.ref(ref).getDownloadURL();
+
+          this.images.push({
+            ref,
+            link,
+          });
+        });
+      },
     },
   },
 };

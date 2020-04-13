@@ -5,8 +5,9 @@
       <label class="label">Choose a card</label>
 
       <Cards
+        v-if="hand"
         v-model="card"
-        :hand="hand"
+        :hand="hand.cards"
       />
     </div>
 
@@ -55,38 +56,27 @@ export default {
       loading: false,
       text: '',
       card: '',
-      hand: [],
+      hand: {
+        uid: '',
+        cards: [],
+      },
+      self: {},
       round: getEmptyRound(),
     };
   },
 
   firestore() {
     return {
-      round: db.collection(`rooms/${this.$route.params.roomID}/rounds/`).doc(this.$route.params.roundID),
+      round: db
+        .collection(`rooms/${this.$route.params.roomID}/rounds/`)
+        .doc(this.$route.params.roundID),
+
+      hand: db
+        .collection(`rooms/${this.$route.params.roomID}/members/`)
+        .doc(auth.currentUser.uid)
+        .collection('hand')
+        .doc(this.$route.params.roundID),
     };
-  },
-
-  watch: {
-    round() {
-      const membersRef = db
-        .collection('rooms')
-        .doc(this.$route.params.roomID)
-        .collection('members');
-
-      membersRef
-        .where('uid', '==', auth.currentUser.uid)
-        .get()
-        .then((snap) => {
-          membersRef
-            .doc(snap.docs[0].id)
-            .collection('hand')
-            .where('roundID', '==', this.round.id)
-            .get()
-            .then((handSnap) => {
-              this.hand = handSnap.docs[0].data().cards;
-            });
-        });
-    },
   },
 
   methods: {
