@@ -1,9 +1,9 @@
 <template>
-  <div class="cards">
+  <div class="cards-grid">
     <div
       v-for="(card, index) in images"
       :key="index"
-      class="card"
+      class="playing-card"
       :class="{ 'selected' : selected === card.ref }"
       @click="$emit('select', card.ref)"
     >
@@ -66,11 +66,6 @@ export default {
     hand: {
       immediate: true,
       handler(newValue, oldValue) {
-        console.log({
-          newValue,
-          oldValue,
-        });
-
         if (JSON.stringify(newValue) === JSON.stringify(oldValue)) {
           return;
         }
