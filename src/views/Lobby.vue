@@ -54,6 +54,7 @@ export default {
       auth,
       room: getEmptyRoom(),
       rounds: [],
+      latestRound: null,
       members: [],
     };
   },
@@ -77,17 +78,18 @@ export default {
     };
   },
 
-  computed: {
-    latestRound() {
-      if (this.rounds.length === 0) {
-        return null;
-      }
-
-      return this.rounds[this.rounds.length - 1];
-    },
-  },
-
   watch: {
+    rounds() {
+      if (this.rounds.length > 0) {
+        this.latestRound = this.rounds[this.rounds.length - 1];
+        const userAlreadyMember = this.members.find((member) => member.uid === auth.currentUser.uid);
+
+        if (this.room.startedAt && userAlreadyMember) {
+          this.resumeRound();
+        }
+      }
+    },
+
     room() {
       const userAlreadyMember = this.members.find((member) => member.uid === auth.currentUser.uid);
 
