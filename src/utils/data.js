@@ -12,10 +12,7 @@ export function getEmptyRoom() {
 export function getEmptyRound() {
   return {
     number: 1,
-    story: {
-      text: '',
-      card: '',
-    },
+    storyText: '',
     storyTeller: {
       name: '',
       uid: '',

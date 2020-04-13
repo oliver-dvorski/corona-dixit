@@ -41,7 +41,11 @@ export default {
 
   watch: {
     pool() {
-      this.images = this.pool.map((item) => item.card);
+      this.pool.forEach((item) => {
+        if (!this.images.includes(item.card)) {
+          this.images.push(item.card);
+        }
+      });
     },
   },
 };

@@ -154,7 +154,7 @@ export default {
           startedAt: Date.now(),
         });
 
-      const newRound = await db
+      await db
         .collection('rooms')
         .doc(this.$route.params.id)
         .collection('rounds')
@@ -171,14 +171,6 @@ export default {
       // await shuffle({
       //   roomID: this.$route.params.id,
       // });
-
-      await this.$router.push({
-        name: 'Round',
-        params: {
-          roomID: this.room.id,
-          roundID: newRound.id,
-        },
-      });
     },
   },
 };

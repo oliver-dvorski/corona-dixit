@@ -3,58 +3,62 @@
     v-if="round.id"
     class="section"
   >
-    <div v-if="round.number">
-      <h1 class="title">
-        {{ room.name }}
-      </h1>
-      <p class="subtitle">
-        Round #{{ round.number }}
-      </p>
-    </div>
+    <Loader :loading="!hand" />
 
-    <!--    <pre>{{ round }}</pre>-->
-
-    <div v-if="!voting">
-      <WriteStory v-if="round.storyTeller.uid === auth.currentUser.uid" />
-
-      <div v-else>
-        <p class="title is-5">
-          Waiting on the storyteller to write the story
-        </p>
+    <div v-if="hand">
+      <div v-if="round.number">
+        <h1 class="title">
+          {{ room.name }}
+        </h1>
         <p class="subtitle">
-          Storyteller for this round: <span class="has-text-weight-bold">{{ round.storyTeller.name }}</span>
+          Round #{{ round.number }}
         </p>
-
-        <p class="label">
-          While you're waiting, take a look at the cards in your hand:
-        </p>
-        <Cards
-          v-if="hand"
-          :hand="hand.cards"
-        />
       </div>
 
+      <!--    <pre>{{ round }}</pre>-->
 
-      <!--    <div v-if="voting && auth.currentUser">-->
-      <!--      <Vote v-if="currentRound.storyTeller.id !== auth.currentUser.uid" />-->
+      <div v-if="round.storyText === ''">
+        <WriteStory v-if="round.storyTeller.uid === auth.currentUser.uid" />
 
-      <!--      <Pool v-else />-->
+        <div v-else>
+          <p class="title is-5">
+            Waiting on the storyteller to write the story
+          </p>
+          <p class="subtitle">
+            Storyteller for this round: <span class="has-text-weight-bold">{{ round.storyTeller.name }}</span>
+          </p>
+
+          <p class="label">
+            While you're waiting, take a look at the cards in your hand:
+          </p>
+          <Cards
+            v-if="hand"
+            :hand="hand.cards"
+          />
+        </div>
+
+
+        <!--    <div v-if="voting && auth.currentUser">-->
+        <!--      <Vote v-if="currentRound.storyTeller.id !== auth.currentUser.uid" />-->
+
+        <!--      <Pool v-else />-->
+      </div>
+
+      <section
+        v-else
+        class="section"
+      >
+        <WatchPoolFillUp v-if="auth.currentUser.uid === round.storyTeller.uid" />
+
+        <div v-else>
+          <h2 class="title">
+            The story is: {{ round.storyText }}
+          </h2>
+
+          <AddToPool v-if="currentUserPoolCollection.length === 0" />
+        </div>
+      </section>
     </div>
-
-    <section
-      v-else
-      class="section"
-    >
-      <WatchPoolFillUp v-if="auth.currentUser.uid === round.storyTeller.uid" />
-
-      <div v-else>
-        <h2 class="title">
-          The story is: {{ round.storyText }}
-        </h2>
-
-        <AddToPool v-if="currentUserPoolCollection.length === 0" />
-      </div>
-    </section>
   </section>
 </template>
 
@@ -66,6 +70,7 @@ import Cards from '../../components/Cards.vue';
 import WatchPoolFillUp from './Pool/WatchPoolFillUp.vue';
 import AddToPool from './Pool/AddToPool.vue';
 import { getEmptyRoom, getEmptyRound } from '../../utils/data';
+import Loader from '../../components/Loader.vue';
 
 export default {
   name: 'Round',
@@ -76,6 +81,7 @@ export default {
     WatchPoolFillUp,
     AddToPool,
     Cards,
+    Loader,
   },
 
   data() {

@@ -1,8 +1,8 @@
 <template>
   <div class="cards-grid">
     <div
-      v-for="(card, index) in images"
-      :key="index"
+      v-for="card in images"
+      :key="card.ref"
       class="playing-card"
       :class="{ 'selected' : selected === card.ref }"
       @click="$emit('select', card.ref)"
@@ -65,14 +65,12 @@ export default {
   watch: {
     hand: {
       immediate: true,
-      handler(newValue, oldValue) {
-        if (JSON.stringify(newValue) === JSON.stringify(oldValue)) {
-          return;
-        }
-
-        this.images = [];
-
+      handler() {
         this.hand.forEach(async (ref) => {
+          if (this.images.find((image) => image.ref === ref)) {
+            return;
+          }
+
           const link = await storage.ref(ref).getDownloadURL();
 
           this.images.push({
