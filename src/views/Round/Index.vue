@@ -45,21 +45,24 @@
       v-else
       class="section"
     >
-      <h2 class="title">
-        The story is: {{ round.story.text }}
-      </h2>
-      <p class="subtitle">
-        And the image:
-      </p>
-      <div class="playing-card story-card-image">
-        <img
-          :src="storyCardImage"
-          alt="Story image"
-        >
+      <WatchPoolFillUp v-if="auth.currentUser.uid === round.storyTeller.uid" />
+
+      <div v-else>
+        <h2 class="title">
+          The story is: {{ round.story.text }}
+        </h2>
+        <p class="subtitle">
+          And the image:
+        </p>
+        <div class="playing-card story-card-image">
+          <img
+            :src="storyCardImage"
+            alt="Story image"
+          >
+        </div>
+
+        <AddToPool v-if="currentUserPoolCollection.length === 0" />
       </div>
-      <!--        <p class="subtitle">-->
-      <!--          {{ round.story.text }}-->
-      <!--        </p>-->
     </section>
   </section>
 </template>
@@ -69,7 +72,8 @@ import { auth, db, storage } from '../../firebase';
 import WriteStory from './WriteStory.vue';
 import Cards from '../../components/Cards.vue';
 // import Vote from './Vote.vue';
-// import Pool from './PopulatePool.vue';
+import WatchPoolFillUp from './Pool/WatchPoolFillUp.vue';
+import AddToPool from './Pool/AddToPool.vue';
 import { getEmptyRoom, getEmptyRound } from '../../utils/data';
 
 export default {
@@ -78,7 +82,8 @@ export default {
   components: {
     WriteStory,
     // Vote,
-    // Pool,
+    WatchPoolFillUp,
+    AddToPool,
     Cards,
   },
 
@@ -87,6 +92,8 @@ export default {
       auth,
       room: getEmptyRoom(),
       round: getEmptyRound(),
+      members: [],
+      currentUserPoolCollection: [],
       hand: {
         uid: '',
         cards: [],
@@ -108,11 +115,24 @@ export default {
         .collection('rounds')
         .doc(this.$route.params.roundID),
 
+      members: db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('members'),
+
       hand: db
         .collection(`rooms/${this.$route.params.roomID}/members/`)
         .doc(auth.currentUser.uid)
         .collection('hand')
         .doc(this.$route.params.roundID),
+
+      currentUserPoolCollection: db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('rounds')
+        .doc(this.$route.params.roundID)
+        .collection('pool')
+        .where('setBy', '==', auth.currentUser.uid),
     };
   },
 
@@ -122,8 +142,7 @@ export default {
     // },
 
     voting() {
-      // TODO: Add a check for pool size (we're not voting if the pool equals the number of members in the room)
-      return this.round.story.text !== '' && this.round.story.card !== '';
+      return this.round.story.text !== '' && this.round.story.card !== '' && this.members.length > this.round.pool.length;
     },
   },
 
