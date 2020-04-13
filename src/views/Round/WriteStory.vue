@@ -87,14 +87,22 @@ export default {
 
       this.loading = true;
 
+      const { roomID, roundID } = this.$route.params;
+
       await db
-        .collection(`rooms/${this.$route.params.roomID}/rounds`)
-        .doc(this.$route.params.roundID)
+        .collection(`rooms/${roomID}/rounds`)
+        .doc(roundID)
         .update({
-          story: {
-            card: this.card,
-            text: this.text,
-          },
+          storyText: this.text,
+        });
+
+      await db
+        .collection(`rooms/${roomID}/rounds/${roundID}/pool`)
+        .doc(this.card)
+        .set({
+          card: this.card,
+          setBy: auth.currentUser.uid,
+          chosenBy: '',
         });
 
       this.loading = false;

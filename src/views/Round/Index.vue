@@ -49,17 +49,8 @@
 
       <div v-else>
         <h2 class="title">
-          The story is: {{ round.story.text }}
+          The story is: {{ round.storyText }}
         </h2>
-        <p class="subtitle">
-          And the image:
-        </p>
-        <div class="playing-card story-card-image">
-          <img
-            :src="storyCardImage"
-            alt="Story image"
-          >
-        </div>
 
         <AddToPool v-if="currentUserPoolCollection.length === 0" />
       </div>
@@ -68,7 +59,7 @@
 </template>
 
 <script>
-import { auth, db, storage } from '../../firebase';
+import { auth, db } from '../../firebase';
 import WriteStory from './WriteStory.vue';
 import Cards from '../../components/Cards.vue';
 // import Vote from './Vote.vue';
@@ -142,15 +133,7 @@ export default {
     // },
 
     voting() {
-      return this.round.story.text !== '' && this.round.story.card !== '' && this.members.length > this.round.pool.length;
-    },
-  },
-
-  watch: {
-    async round() {
-      if (this.round.story.card !== '') {
-        this.storyCardImage = await storage.ref(this.round.story.card).getDownloadURL();
-      }
+      return this.round.storyText !== '' && this.members.length > this.round.pool.length;
     },
   },
 
@@ -171,9 +154,3 @@ export default {
   // },
 };
 </script>
-
-<style>
-  .story-card-image {
-    max-width: 300px;
-  }
-</style>
