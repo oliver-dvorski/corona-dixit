@@ -36,12 +36,6 @@
             :hand="hand.cards"
           />
         </div>
-
-
-        <!--    <div v-if="voting && auth.currentUser">-->
-        <!--      <Vote v-if="currentRound.storyTeller.id !== auth.currentUser.uid" />-->
-
-        <!--      <Pool v-else />-->
       </div>
 
       <section
@@ -56,6 +50,8 @@
           </h2>
 
           <AddToPool v-if="currentUserPoolCollection.length === 0" />
+
+          <Vote v-if="round.vote" />
         </div>
       </section>
     </div>
@@ -66,7 +62,7 @@
 import { auth, db } from '../../firebase';
 import WriteStory from './WriteStory.vue';
 import Cards from '../../components/Cards.vue';
-// import Vote from './Vote.vue';
+import Vote from './Vote.vue';
 import WatchPoolFillUp from './Pool/WatchPoolFillUp.vue';
 import AddToPool from './Pool/AddToPool.vue';
 import { getEmptyRoom, getEmptyRound } from '../../utils/data';
@@ -77,7 +73,7 @@ export default {
 
   components: {
     WriteStory,
-    // Vote,
+    Vote,
     WatchPoolFillUp,
     AddToPool,
     Cards,
@@ -132,31 +128,5 @@ export default {
         .where('setBy', '==', auth.currentUser.uid),
     };
   },
-
-  computed: {
-    // currentRound() {
-    //   return this.room.rounds[this.$route.params.number - 1];
-    // },
-
-    voting() {
-      return this.round.storyText !== '' && this.members.length > this.round.pool.length;
-    },
-  },
-
-  // watch: {
-  //   async room() {
-  //     if (!this.room || !auth.currentUser) {
-  //       return;
-  //     }
-  //
-  //     const currentRoomMember = this.room.members.find((member) => member.id === auth.currentUser.uid);
-  //
-  //     if (currentRoomMember.hand.length > 0) {
-  //       for (const fileName of currentRoomMember.hand) {
-  //         this.hand.push(await storage.ref(fileName).getDownloadURL());
-  //       }
-  //     }
-  //   },
-  // },
 };
 </script>

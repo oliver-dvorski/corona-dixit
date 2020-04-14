@@ -73,10 +73,6 @@ exports.fillUpPool = functions
 
     const numberOfMembers = membersSnap.size;
 
-    if (numberOfMembers === 6) {
-      return;
-    }
-
     const poolSnap = await admin
       .firestore()
       .collection('rooms')
@@ -87,6 +83,20 @@ exports.fillUpPool = functions
       .get();
 
     const numberOfCardsInPool = poolSnap.size;
+
+    if (numberOfCardsInPool === 6) {
+      await admin
+        .firestore()
+        .collection('rooms')
+        .doc(roomID)
+        .collection('rounds')
+        .doc(roundID)
+        .update({
+          vote: true,
+        });
+
+      return;
+    }
 
     if (numberOfCardsInPool === numberOfMembers) {
       const difference = 6 - numberOfMembers;
@@ -105,7 +115,7 @@ exports.fillUpPool = functions
         deck.splice(existing, 1);
       });
 
-      for (let i = difference; i <= 6; i++) {
+      for (let i = difference; i < 6; i++) {
         const randomIndex = Math.floor(Math.random() * deck.length);
 
         await admin
