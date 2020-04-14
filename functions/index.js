@@ -13,7 +13,7 @@ const storage = new Storage({
   keyFilename: './service-account.json',
 });
 
-async function dealHand(deck) {
+async function getHand(deck) {
   const hand = [];
 
   for (let i = 0; i < 6; i++) {
@@ -27,6 +27,12 @@ async function dealHand(deck) {
   return hand;
 }
 
+async function getFullDeck() {
+  const storageCollection = await storage.bucket('corona-dixit.appspot.com').getFiles();
+
+  return storageCollection[0].map((storageObject) => storageObject.name);
+}
+
 exports.shuffleCards = functions
   .firestore
   .document('rooms/{roomID}/rounds/{roundID}')
@@ -38,14 +44,85 @@ exports.shuffleCards = functions
 
     const membersSnapshot = await roomRef.collection('members').get();
 
-    const storageCollection = await storage.bucket('corona-dixit.appspot.com').getFiles();
-    const deck = storageCollection[0].map((storageObject) => storageObject.name);
+    const deck = await getFullDeck();
 
     membersSnapshot.forEach(async (member) => {
       roomRef.collection('members').doc(member.id).collection('hand').doc(context.params.roundID)
         .set({
           roundID: context.params.roundID,
-          cards: await dealHand(deck),
+          cards: await getHand(deck),
         });
     });
+  });
+
+exports.fillUpPool = functions
+  .firestore
+  .document('rooms/{roomID}/rounds/{roundID}/pool/{poolID}')
+  .onCreate(async (change, context) => {
+    const {
+      roomID,
+      roundID,
+    } = context.params;
+
+    const membersSnap = await admin
+      .firestore()
+      .collection('rooms')
+      .doc(roomID)
+      .collection('members')
+      .get();
+
+    const numberOfMembers = membersSnap.size;
+
+    if (numberOfMembers === 6) {
+      return;
+    }
+
+    const poolSnap = await admin
+      .firestore()
+      .collection('rooms')
+      .doc(roomID)
+      .collection('rounds')
+      .doc(roundID)
+      .collection('pool')
+      .get();
+
+    const numberOfCardsInPool = poolSnap.size;
+
+    if (numberOfCardsInPool === numberOfMembers) {
+      const difference = 6 - numberOfMembers;
+
+      const deck = await getFullDeck();
+
+      const poolData = [];
+
+      poolSnap.forEach((doc) => {
+        poolData.push(doc.data());
+      });
+
+      poolData.forEach((poolItem) => {
+        const existing = deck.indexOf(poolItem.card);
+
+        deck.splice(existing, 1);
+      });
+
+      for (let i = difference; i <= 6; i++) {
+        const randomIndex = Math.floor(Math.random() * deck.length);
+
+        await admin
+          .firestore()
+          .collection('rooms')
+          .doc(roomID)
+          .collection('rounds')
+          .doc(roundID)
+          .collection('pool')
+          .doc(deck[randomIndex])
+          .set({
+            card: deck[randomIndex],
+            setBy: 'cloudFunction',
+            chosenBy: '',
+          });
+
+        deck.splice(randomIndex, 1);
+      }
+    }
   });
