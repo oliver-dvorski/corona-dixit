@@ -5,6 +5,7 @@ import NewRoom from '../views/NewRoom.vue';
 import UserProfile from '../views/UserProfile.vue';
 import Lobby from '../views/Lobby.vue';
 import Round from '../views/Round/Index.vue';
+import RoundResults from '../views/Round/Results.vue';
 
 // import { auth } from '../firebase';
 
@@ -30,6 +31,11 @@ const routes = [
     path: '/room/:roomID/round/:roundID',
     name: 'Round',
     component: Round,
+  },
+  {
+    path: '/room/:roomID/round/:roundID/results',
+    name: 'RoundResults',
+    component: RoundResults,
   },
   {
     path: '/profile',

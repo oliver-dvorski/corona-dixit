@@ -18,6 +18,7 @@ export function getEmptyRound() {
       uid: '',
     },
     pool: [],
+    voted: [],
     vote: false,
   };
 }

@@ -25,7 +25,7 @@ exports.shuffleCards = functions
 
     const membersSnapshot = await roomRef.collection('members').get();
 
-    const deck = await getFullDeck();
+    const deck = await getFullDeck(storage);
 
     membersSnapshot.forEach(async (member) => {
       roomRef.collection('members').doc(member.id).collection('hand').doc(context.params.roundID)
@@ -66,6 +66,14 @@ exports.fillUpPool = functions
     const numberOfCardsInPool = poolSnap.size;
 
     if (numberOfCardsInPool === 6) {
+      // We should start voting, let's add the pool cards to the round so they're
+      // accessible by the client
+
+      const shallowPool = [];
+      poolSnap.forEach((poolDoc) => {
+        shallowPool.push(poolDoc.data().card);
+      });
+
       await admin
         .firestore()
         .collection('rooms')
@@ -74,6 +82,7 @@ exports.fillUpPool = functions
         .doc(roundID)
         .update({
           vote: true,
+          pool: shallowPool,
         });
 
       return;
@@ -82,7 +91,7 @@ exports.fillUpPool = functions
     if (numberOfCardsInPool === numberOfMembers) {
       const difference = 6 - numberOfMembers;
 
-      const deck = await getFullDeck();
+      const deck = await getFullDeck(storage);
 
       const poolData = [];
 
@@ -110,7 +119,7 @@ exports.fillUpPool = functions
           .set({
             card: deck[randomIndex],
             setBy: 'cloudFunction',
-            chosenBy: '',
+            chosenBy: [],
           });
 
         deck.splice(randomIndex, 1);

@@ -24,6 +24,7 @@ export default {
   data() {
     return {
       pool: [],
+      members: [],
       images: [],
     };
   },
@@ -36,6 +37,11 @@ export default {
         .collection('rounds')
         .doc(this.$route.params.roundID)
         .collection('pool'),
+
+      members: db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('members'),
     };
   },
 
@@ -46,6 +52,15 @@ export default {
           this.images.push(item.card);
         }
       });
+
+      if (this.pool.length === this.members.length) {
+        this.$router.push({
+          name: 'RoundResults',
+          params: {
+            ...this.$route.params,
+          },
+        });
+      }
     },
   },
 };

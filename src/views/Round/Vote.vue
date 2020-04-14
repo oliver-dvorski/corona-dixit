@@ -8,7 +8,7 @@
       </p>
       <Cards
         v-model="vote"
-        :hand="images"
+        :hand="round.pool"
       />
     </div>
 
@@ -24,10 +24,11 @@
 </template>
 
 <script>
+import firebase from 'firebase/app';
+import { auth, db } from '../../firebase';
 import Cards from '../../components/Cards.vue';
 import Loader from '../../components/Loader.vue';
 import { getEmptyRoom } from '../../utils/data';
-import { db } from '../../firebase';
 
 export default {
   name: 'Vote',
@@ -43,35 +44,49 @@ export default {
       pool: [],
       round: getEmptyRoom(),
       vote: '',
-      images: [],
     };
   },
 
   firestore() {
     return {
-      pool: db
+      round: db
         .collection('rooms')
         .doc(this.$route.params.roomID)
         .collection('rounds')
-        .doc(this.$route.params.roundID)
-        .collection('pool'),
+        .doc(this.$route.params.roundID),
     };
-  },
-
-  watch: {
-    pool() {
-      this.pool.forEach((item) => {
-        if (!this.images.includes(item.card)) {
-          this.images.push(item.card);
-        }
-      });
-    },
   },
 
   methods: {
     async castVote() {
       this.loading = true;
-      //
+      await db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('rounds')
+        .doc(this.$route.params.roundID)
+        .collection('pool')
+        .doc(this.vote)
+        .update({
+          chosenBy: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid),
+        });
+
+      await db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('rounds')
+        .doc(this.$route.params.roundID)
+        .update({
+          voted: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid),
+        });
+
+      await this.$router.push({
+        name: 'RoundResults',
+        params: {
+          ...this.$route.params,
+        },
+      });
+
       this.loading = false;
     },
   },

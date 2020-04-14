@@ -102,7 +102,7 @@ export default {
         .set({
           card: this.card,
           setBy: auth.currentUser.uid,
-          chosenBy: '',
+          chosenBy: [],
         });
 
       this.loading = false;

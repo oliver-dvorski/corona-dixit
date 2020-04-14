@@ -12,7 +12,7 @@ async function getHand(deck) {
   return hand;
 }
 
-async function getFullDeck() {
+async function getFullDeck(storage) {
   const storageCollection = await storage.bucket('corona-dixit.appspot.com').getFiles();
 
   return storageCollection[0].map((storageObject) => storageObject.name);
