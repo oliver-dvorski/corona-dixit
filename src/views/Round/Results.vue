@@ -1,5 +1,6 @@
 <template>
   <section class="section">
+    <Loader :loading="loading" />
     <div
       v-if="waitingOn.length > 0"
       class="content container"
@@ -19,17 +20,32 @@
       <h2 class="title">
         Results:
       </h2>
-      <pre>{{ pool }}</pre>
+      <div class="content">
+        <ul>
+          <li
+            v-for="member in members"
+            :key="member.id"
+          >
+            {{ member.name }} ({{ member.score }})
+          </li>
+        </ul>
+      </div>
     </div>
   </section>
 </template>
 
 <script>
-import { db } from '../../firebase';
+import firebase from 'firebase/app';
+import { auth, db } from '../../firebase';
 import { getEmptyRound } from '../../utils/data';
+import Loader from '../../components/Loader.vue';
 
 export default {
   name: 'RoundResults',
+
+  components: {
+    Loader,
+  },
 
   data() {
     return {
@@ -37,6 +53,7 @@ export default {
       round: getEmptyRound(),
       waitingOn: [],
       pool: [],
+      loading: false,
     };
   },
 
@@ -73,7 +90,94 @@ export default {
         poolSnap.forEach((item) => {
           this.pool.push(item.data());
         });
+
+        if (this.pool.length === 6 && this.round.results.length === 0 && auth.currentUser.uid === this.round.storyTeller.uid) {
+          await this.calculateResults();
+        }
       }
+    },
+  },
+
+  methods: {
+    async calculateResults() {
+      if (this.pool.length === 0) {
+        return false;
+      }
+
+      this.loading = true;
+
+      const storyPoolItem = this.pool.find((item) => item.setBy === this.round.storyTeller.uid);
+
+      if (storyPoolItem.chosenBy.length === 0 || storyPoolItem.chosenBy.length === this.members.length - 1) {
+        // Everyone or no one voted for the right card
+        for (const member of this.members) {
+          if (member.id !== this.round.storyTeller.uid) {
+            await db
+              .collection('rooms')
+              .doc(this.$route.params.roomID)
+              .collection('members')
+              .doc(member.id)
+              .update({
+                score: firebase.firestore.FieldValue.increment(2),
+              });
+          }
+        }
+
+        await this.writeResultsToRound();
+
+        this.loading = false;
+
+        return;
+      }
+
+      for (const playerID of storyPoolItem.chosenBy) {
+        await db
+          .collection('rooms')
+          .doc(this.$route.params.roomID)
+          .collection('members')
+          .doc(playerID)
+          .update({
+            score: firebase.firestore.FieldValue.increment(3),
+          });
+      }
+
+      await db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('members')
+        .doc(this.round.storyTeller.uid)
+        .update({
+          score: firebase.firestore.FieldValue.increment(3),
+        });
+
+      // Bonus points
+      for (const poolItem of this.pool) {
+        if (poolItem.setBy !== this.round.storyTeller.uid && poolItem.chosenBy.length > 0) {
+          await db
+            .collection('rooms')
+            .doc(this.$route.params.roomID)
+            .collection('members')
+            .doc(poolItem.setBy)
+            .update({
+              score: firebase.firestore.FieldValue.increment(poolItem.chosenBy.length),
+            });
+        }
+      }
+
+      await this.writeResultsToRound();
+
+      this.loading = false;
+    },
+
+    async writeResultsToRound() {
+      await db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('rounds')
+        .doc(this.$route.params.roundID)
+        .update({
+          results: this.members,
+        });
     },
   },
 };

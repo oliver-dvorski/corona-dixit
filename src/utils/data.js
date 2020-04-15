@@ -20,5 +20,6 @@ export function getEmptyRound() {
     pool: [],
     voted: [],
     vote: false,
+    results: [],
   };
 }

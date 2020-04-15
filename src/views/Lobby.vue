@@ -122,6 +122,7 @@ export default {
           .set({
             uid: auth.currentUser.uid,
             name: auth.currentUser.displayName,
+            score: 0,
           });
       }
     },
