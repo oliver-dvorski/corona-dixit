@@ -122,37 +122,31 @@ export default {
               });
           }
         }
+      } else {
+        for (const playerID of storyPoolItem.chosenBy) {
+          await db
+            .collection('rooms')
+            .doc(this.$route.params.roomID)
+            .collection('members')
+            .doc(playerID)
+            .update({
+              score: firebase.firestore.FieldValue.increment(3),
+            });
+        }
 
-        await this.writeResultsToRound();
-
-        this.loading = false;
-
-        return;
-      }
-
-      for (const playerID of storyPoolItem.chosenBy) {
         await db
           .collection('rooms')
           .doc(this.$route.params.roomID)
           .collection('members')
-          .doc(playerID)
+          .doc(this.round.storyTeller.uid)
           .update({
             score: firebase.firestore.FieldValue.increment(3),
           });
       }
 
-      await db
-        .collection('rooms')
-        .doc(this.$route.params.roomID)
-        .collection('members')
-        .doc(this.round.storyTeller.uid)
-        .update({
-          score: firebase.firestore.FieldValue.increment(3),
-        });
-
       // Bonus points
       for (const poolItem of this.pool) {
-        if (poolItem.setBy !== this.round.storyTeller.uid && poolItem.chosenBy.length > 0) {
+        if (poolItem.setBy !== 'cloudFunction' && poolItem.setBy !== this.round.storyTeller.uid && poolItem.chosenBy.length > 0) {
           await db
             .collection('rooms')
             .doc(this.$route.params.roomID)

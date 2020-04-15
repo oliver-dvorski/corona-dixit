@@ -1,6 +1,6 @@
 <template>
   <section
-    v-if="round.id"
+    v-if="round"
     class="section"
   >
     <Loader :loading="!hand" />
@@ -15,9 +15,7 @@
         </p>
       </div>
 
-      <!--    <pre>{{ round }}</pre>-->
-
-      <div v-if="round.storyText === ''">
+      <div v-if="round.storyText === '' && auth.currentUser">
         <WriteStory v-if="round.storyTeller.uid === auth.currentUser.uid" />
 
         <div v-else>

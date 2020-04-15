@@ -53,7 +53,7 @@ export default {
         }
       });
 
-      if (this.pool.length === this.members.length) {
+      if (this.pool.length !== 0 && this.pool.length === this.members.length) {
         this.$router.push({
           name: 'RoundResults',
           params: {
