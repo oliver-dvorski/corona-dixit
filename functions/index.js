@@ -105,7 +105,7 @@ exports.fillUpPool = functions
         deck.splice(existing, 1);
       });
 
-      for (let i = difference; i < 6; i++) {
+      for (let i = 0; i < difference; i++) {
         const randomIndex = Math.floor(Math.random() * deck.length);
 
         await admin
