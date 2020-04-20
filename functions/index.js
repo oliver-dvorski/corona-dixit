@@ -126,3 +126,48 @@ exports.fillUpPool = functions
       }
     }
   });
+
+exports.startNewRound = functions
+  .firestore
+  .document('rooms/{roomID}/rounds/{roundID}')
+  .onUpdate(async (change, context) => {
+    const round = change.after.data();
+
+    if (round.results.length > 0) {
+      const membersSnap = await admin
+        .firestore()
+        .collection('rooms')
+        .doc(context.params.roomID)
+        .collection('members')
+        .get();
+
+      const roomDoc = await admin
+        .firestore()
+        .collection('rooms')
+        .doc(context.params.roomID)
+        .get();
+
+      const room = roomDoc.data();
+
+      const numberOfMembers = membersSnap.size;
+
+      if (round.number < numberOfMembers * 2) {
+        const nextStoryTeller = round.number < numberOfMembers ? room.playOrder[round.number] : room.playOrder[round.number - numberOfMembers];
+
+        await admin
+          .firestore()
+          .collection('rooms')
+          .doc(context.params.roomID)
+          .collection('rounds')
+          .add({
+            number: round.number + 1,
+            pool: [],
+            results: [],
+            storyTeller: nextStoryTeller,
+            storyText: '',
+            vote: false,
+            voted: [],
+          });
+      }
+    }
+  });
