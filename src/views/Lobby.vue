@@ -172,10 +172,7 @@ export default {
         .collection('rounds')
         .add({
           ...getEmptyRound(),
-          storyTeller: {
-            name: auth.currentUser.displayName,
-            uid: auth.currentUser.uid,
-          },
+          storyTeller: membersClone[0],
         });
 
       // const shuffle = functions.httpsCallable('shuffleCards');
