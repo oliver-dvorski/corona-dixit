@@ -17,7 +17,7 @@ const storage = new Storage({
 exports.shuffleCards = functions
   .firestore
   .document('rooms/{roomID}/rounds/{roundID}')
-  .onCreate(async (change, context) => {
+  .onCreate(async (roundSnap, context) => {
     const roomRef = admin
       .firestore()
       .collection('rooms')
@@ -27,12 +27,56 @@ exports.shuffleCards = functions
 
     const deck = await getFullDeck(storage);
 
+    const round = roundSnap.data();
+
+    let previousRound = round;
+
+    if (round.number > 1) {
+      const previousRoundSnap = await roomRef
+        .collection('rounds')
+        .where('number', '==', round.number - 1)
+        .get();
+
+      previousRound = previousRoundSnap.docs[0];
+    }
+
+
     membersSnapshot.forEach(async (member) => {
-      roomRef.collection('members').doc(member.id).collection('hand').doc(context.params.roundID)
-        .set({
+      const handCollection = roomRef.collection('members').doc(member.id).collection('hand');
+
+      let newHand = {};
+
+      if (round.number > 1) {
+        const handSnap = await handCollection.doc(previousRound.id).get();
+        const hand = handSnap.data().cards;
+
+        const usedCardSnap = await roomRef
+          .collection('rounds')
+          .doc(previousRound.id)
+          .collection('pool')
+          .where('setBy', '==', member.id)
+          .get();
+
+        const usedCard = usedCardSnap.docs[0].data().card;
+
+        hand.splice(hand.indexOf(usedCard), 1);
+
+        const randomIndex = Math.floor(Math.random() * deck.length);
+
+        hand.push(deck[randomIndex]);
+
+        newHand = {
+          roundID: context.params.roundID,
+          cards: hand,
+        };
+      } else {
+        newHand = {
           roundID: context.params.roundID,
           cards: await getHand(deck),
-        });
+        };
+      }
+
+      handCollection.doc(context.params.roundID).set(newHand);
     });
   });
 
