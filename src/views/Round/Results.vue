@@ -30,6 +30,31 @@
           </li>
         </ul>
       </div>
+
+      <div
+        v-if="round.number < members.length * 2"
+        class="field"
+      >
+        <router-link
+          v-if="linkToNextRound"
+          :to="linkToNextRound"
+          class="button"
+        >
+          Next round
+        </router-link>
+      </div>
+
+      <div
+        v-else
+        class="field"
+      >
+        <router-link
+          class="button"
+          :to="{name: 'Home'}"
+        >
+          Game over
+        </router-link>
+      </div>
     </div>
   </section>
 </template>
@@ -51,6 +76,8 @@ export default {
     return {
       members: [],
       round: getEmptyRound(),
+      allRounds: [],
+      linkToNextRound: null,
       waitingOn: [],
       pool: [],
       loading: false,
@@ -69,6 +96,11 @@ export default {
         .doc(this.$route.params.roomID)
         .collection('rounds')
         .doc(this.$route.params.roundID),
+
+      allRounds: db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('rounds'),
     };
   },
 
@@ -94,6 +126,20 @@ export default {
         if (this.pool.length === 6 && this.round.results.length === 0 && auth.currentUser.uid === this.round.storyTeller.uid) {
           await this.calculateResults();
         }
+      }
+    },
+
+    allRounds() {
+      const nextRound = this.allRounds.find((round) => round.number === this.round.number + 1);
+
+      if (nextRound) {
+        this.linkToNextRound = {
+          name: 'Round',
+          params: {
+            roomID: this.$route.params.roomID,
+            roundID: nextRound.id,
+          },
+        };
       }
     },
   },

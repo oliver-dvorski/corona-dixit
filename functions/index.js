@@ -17,7 +17,7 @@ const storage = new Storage({
 exports.shuffleCards = functions
   .firestore
   .document('rooms/{roomID}/rounds/{roundID}')
-  .onCreate(async (change, context) => {
+  .onCreate(async (roundSnap, context) => {
     const roomRef = admin
       .firestore()
       .collection('rooms')
@@ -27,12 +27,56 @@ exports.shuffleCards = functions
 
     const deck = await getFullDeck(storage);
 
+    const round = roundSnap.data();
+
+    let previousRound = round;
+
+    if (round.number > 1) {
+      const previousRoundSnap = await roomRef
+        .collection('rounds')
+        .where('number', '==', round.number - 1)
+        .get();
+
+      previousRound = previousRoundSnap.docs[0];
+    }
+
+
     membersSnapshot.forEach(async (member) => {
-      roomRef.collection('members').doc(member.id).collection('hand').doc(context.params.roundID)
-        .set({
+      const handCollection = roomRef.collection('members').doc(member.id).collection('hand');
+
+      let newHand = {};
+
+      if (round.number > 1) {
+        const handSnap = await handCollection.doc(previousRound.id).get();
+        const hand = handSnap.data().cards;
+
+        const usedCardSnap = await roomRef
+          .collection('rounds')
+          .doc(previousRound.id)
+          .collection('pool')
+          .where('setBy', '==', member.id)
+          .get();
+
+        const usedCard = usedCardSnap.docs[0].data().card;
+
+        hand.splice(hand.indexOf(usedCard), 1);
+
+        const randomIndex = Math.floor(Math.random() * deck.length);
+
+        hand.push(deck[randomIndex]);
+
+        newHand = {
+          roundID: context.params.roundID,
+          cards: hand,
+        };
+      } else {
+        newHand = {
           roundID: context.params.roundID,
           cards: await getHand(deck),
-        });
+        };
+      }
+
+      handCollection.doc(context.params.roundID).set(newHand);
     });
   });
 
@@ -123,6 +167,51 @@ exports.fillUpPool = functions
           });
 
         deck.splice(randomIndex, 1);
+      }
+    }
+  });
+
+exports.startNewRound = functions
+  .firestore
+  .document('rooms/{roomID}/rounds/{roundID}')
+  .onUpdate(async (change, context) => {
+    const round = change.after.data();
+
+    if (round.results.length > 0) {
+      const membersSnap = await admin
+        .firestore()
+        .collection('rooms')
+        .doc(context.params.roomID)
+        .collection('members')
+        .get();
+
+      const roomDoc = await admin
+        .firestore()
+        .collection('rooms')
+        .doc(context.params.roomID)
+        .get();
+
+      const room = roomDoc.data();
+
+      const numberOfMembers = membersSnap.size;
+
+      if (round.number < numberOfMembers * 2) {
+        const nextStoryTeller = round.number < numberOfMembers ? room.playOrder[round.number] : room.playOrder[round.number - numberOfMembers];
+
+        await admin
+          .firestore()
+          .collection('rooms')
+          .doc(context.params.roomID)
+          .collection('rounds')
+          .add({
+            number: round.number + 1,
+            pool: [],
+            results: [],
+            storyTeller: nextStoryTeller,
+            storyText: '',
+            vote: false,
+            voted: [],
+          });
       }
     }
   });

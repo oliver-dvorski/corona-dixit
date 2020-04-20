@@ -41,6 +41,7 @@
 import { auth, db } from '../firebase';
 import { getEmptyRoom, getEmptyRound } from '../utils/data';
 import Loader from '../components/Loader.vue';
+import { shuffle } from '../utils/array';
 
 export default {
   name: 'Lobby',
@@ -148,11 +149,21 @@ export default {
     },
 
     async startGame() {
+      // TODO: Move the game starting logic to cloud functions
+
+      const membersClone = this.members.map((member) => ({
+        name: member.name,
+        uid: member.uid,
+      }));
+
+      shuffle(membersClone);
+
       await db
         .collection('rooms')
         .doc(this.$route.params.id)
         .update({
           startedAt: Date.now(),
+          playOrder: membersClone,
         });
 
       await db
