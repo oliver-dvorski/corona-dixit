@@ -82,7 +82,7 @@ export default {
   watch: {
     rounds() {
       if (this.rounds.length > 0) {
-        this.latestRound = this.rounds[this.rounds.length - 1];
+        this.latestRound = this.rounds.find((round) => round.number === this.rounds.length);
         const userAlreadyMember = this.members.find((member) => member.uid === auth.currentUser.uid);
 
         if (this.room.startedAt && userAlreadyMember) {
