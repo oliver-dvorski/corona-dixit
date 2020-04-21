@@ -89,7 +89,8 @@ export default {
       members: db
         .collection('rooms')
         .doc(this.$route.params.roomID)
-        .collection('members'),
+        .collection('members')
+        .orderBy('score', 'desc'),
 
       round: db
         .collection('rooms')
