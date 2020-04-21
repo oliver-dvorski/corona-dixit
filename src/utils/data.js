@@ -6,6 +6,7 @@ export function getEmptyRoom() {
       id: '',
     },
     startedAt: null,
+    dealtCards: [],
   };
 }
 

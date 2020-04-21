@@ -27,6 +27,13 @@ exports.shuffleCards = functions
 
     const deck = await getFullDeck(storage);
 
+    const roomDoc = await roomRef.get();
+    const room = roomDoc.data();
+
+    room.dealtCards.forEach((card) => {
+      deck.splice(deck.indexOf(card), 1);
+    });
+
     const round = roundSnap.data();
 
     let previousRound = round;
@@ -40,6 +47,7 @@ exports.shuffleCards = functions
       previousRound = previousRoundSnap.docs[0];
     }
 
+    const dealtCards = room.dealtCards;
 
     membersSnapshot.forEach(async (member) => {
       const handCollection = roomRef.collection('members').doc(member.id).collection('hand');
@@ -76,7 +84,13 @@ exports.shuffleCards = functions
         };
       }
 
+      dealtCards.push(...newHand.cards);
+
       handCollection.doc(context.params.roundID).set(newHand);
+    });
+
+    await roomRef.update({
+      dealtCards,
     });
   });
 
@@ -149,6 +163,21 @@ exports.fillUpPool = functions
         deck.splice(existing, 1);
       });
 
+      const roomRef = admin
+        .firestore()
+        .collection('rooms')
+        .doc(context.params.roomID);
+
+      const roomDoc = await roomRef.get();
+
+      const dealtCards = roomDoc.data().dealtCards;
+
+      console.log(`CARDS: ${JSON.stringify(dealtCards)}`);
+
+      dealtCards.forEach((card) => {
+        deck.splice(deck.indexOf(card), 1);
+      });
+
       for (let i = 0; i < difference; i++) {
         const randomIndex = Math.floor(Math.random() * deck.length);
 
@@ -166,8 +195,13 @@ exports.fillUpPool = functions
             chosenBy: [],
           });
 
+        dealtCards.push(deck[randomIndex]);
         deck.splice(randomIndex, 1);
       }
+
+      await roomRef.update({
+        dealtCards,
+      });
     }
   });
 

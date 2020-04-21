@@ -59,6 +59,7 @@ export default {
         host,
         createdAt: Date.now(),
         startedAt: null,
+        dealtCards: [],
       });
 
       await newRoom.collection('members').doc(host.uid).set(host);
