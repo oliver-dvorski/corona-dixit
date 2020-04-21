@@ -172,8 +172,6 @@ exports.fillUpPool = functions
 
       const dealtCards = roomDoc.data().dealtCards;
 
-      console.log(`CARDS: ${JSON.stringify(dealtCards)}`);
-
       dealtCards.forEach((card) => {
         deck.splice(deck.indexOf(card), 1);
       });
