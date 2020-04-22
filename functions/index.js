@@ -49,7 +49,7 @@ exports.shuffleCards = functions
 
     const dealtCards = room.dealtCards;
 
-    membersSnapshot.forEach(async (member) => {
+    for (const member of membersSnapshot.docs) {
       const handCollection = roomRef.collection('members').doc(member.id).collection('hand');
 
       let newHand = {};
@@ -77,17 +77,21 @@ exports.shuffleCards = functions
           roundID: context.params.roundID,
           cards: hand,
         };
+
+        dealtCards.push(deck[randomIndex]);
+
+        deck.splice(randomIndex, 1);
       } else {
         newHand = {
           roundID: context.params.roundID,
           cards: await getHand(deck),
         };
+
+        dealtCards.push(...newHand.cards);
       }
 
-      dealtCards.push(...newHand.cards);
-
-      handCollection.doc(context.params.roundID).set(newHand);
-    });
+      await handCollection.doc(context.params.roundID).set(newHand);
+    }
 
     await roomRef.update({
       dealtCards,

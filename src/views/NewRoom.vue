@@ -52,6 +52,7 @@ export default {
       const host = {
         uid: auth.currentUser.uid,
         name: auth.currentUser.displayName,
+        score: 0,
       };
 
       const newRoom = await db.collection('rooms').add({
