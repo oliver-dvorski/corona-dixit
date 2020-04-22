@@ -83,7 +83,6 @@ import User from '../components/User.vue';
 import Join from './Join.vue';
 import { db } from '../firebase';
 
-
 export default {
   name: 'Home',
 

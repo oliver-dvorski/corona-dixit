@@ -4,25 +4,19 @@
     class="overlay"
   >
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="48"
-      height="48"
-      viewBox="0 0 48 48"
-    ><g
-      class="nc-icon-wrapper"
-      stroke-linecap="square"
-      stroke-linejoin="miter"
-      stroke-width="4"
-      fill="#ffffff"
-      stroke="#ffffff"
-    ><path
-      fill="none"
-      stroke="#ffffff"
-      stroke-miterlimit="10"
-      d="M3.919,33C2.686,30.253,2,27.207,2,24 C2,11.85,11.85,2,24,2s22,9.85,22,22"
-      data-cap="butt"
-      stroke-linecap="butt"
-    /> </g></svg>
+      class="circular"
+      viewBox="25 25 50 50"
+    >
+      <circle
+        class="path"
+        cx="50"
+        cy="50"
+        r="20"
+        fill="none"
+        stroke-width="4"
+        stroke-miterlimit="10"
+      />
+    </svg>
   </div>
 </template>
 
@@ -42,7 +36,7 @@ export default {
 <style scoped lang="scss">
   .overlay {
     position: fixed;
-    background: rgba(0, 0, 0, .35);
+    background: rgba(0, 0, 0, .45);
     width: 100%;
     height: 100%;
     left: 0;
@@ -51,20 +45,46 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    svg {
-      position: relative;
-      animation: spin 0.75s linear infinite;
-    }
   }
 
-  @keyframes spin {
-    from {
-      transform: rotate(0);
+  .circular {
+    animation: rotate 2s linear infinite;
+    height: 65px;
+    transform-origin: center center;
+    width: 65px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+
+    .path {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+      animation: dash 1.5s ease-in-out infinite;
+      stroke: white;
     }
 
-    to {
-      transform: rotate(360deg);
+    @keyframes rotate {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 89, 200;
+      stroke-dashoffset: -35px;
+    }
+    100% {
+      stroke-dasharray: 89, 200;
+      stroke-dashoffset: -124px;
     }
   }
 </style>
