@@ -255,7 +255,7 @@ exports.startNewRound = functions
 
       for (const memberDoc of membersSnap.docs) {
         if (memberDoc.id !== round.storyTeller.uid) {
-          await memberDoc.update({
+          await membersRef.doc(memberDoc.id).update({
             score: admin.firestore.FieldValue.increment(2),
           });
         }
