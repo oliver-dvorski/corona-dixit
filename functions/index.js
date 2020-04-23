@@ -127,6 +127,10 @@ exports.fillUpPool = functions
 
     const numberOfCardsInPool = poolSnap.size;
 
+    if (numberOfCardsInPool < numberOfMembers) {
+      return;
+    }
+
     if (numberOfCardsInPool === 6) {
       // We should start voting, let's add the pool cards to the round so they're
       // accessible by the client
