@@ -20,6 +20,13 @@
       <h2 class="title">
         Results:
       </h2>
+      <graph
+        :labels="graphLabels"
+        dataset-label="Results"
+        :values="graphValues"
+        type="horizontalBar"
+        :height="`${members.length * 4}rem`"
+      />
       <div class="content">
         <ul>
           <li
@@ -63,12 +70,14 @@
 import { db } from '../../firebase';
 import { getEmptyRound } from '../../utils/data';
 import Loader from '../../components/Loader.vue';
+import Graph from '../../components/Graph.vue';
 
 export default {
   name: 'RoundResults',
 
   components: {
     Loader,
+    Graph,
   },
 
   data() {
@@ -102,6 +111,16 @@ export default {
         .doc(this.$route.params.roomID)
         .collection('rounds'),
     };
+  },
+
+  computed: {
+    graphLabels() {
+      return this.members ? this.members.map((member) => member.name) : [];
+    },
+
+    graphValues() {
+      return this.members ? this.members.map((member) => member.score) : [];
+    },
   },
 
   watch: {
