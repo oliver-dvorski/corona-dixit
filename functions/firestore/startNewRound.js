@@ -44,6 +44,11 @@ async function startNewRound(change, context) {
       if (memberDoc.id !== round.storyTeller.uid) {
         await membersRef.doc(memberDoc.id).update({
           score: FBAdmin.firestore.FieldValue.increment(2),
+          newPoints: 2,
+        });
+      } else {
+        await membersRef.doc(memberDoc.id).update({
+          newPoints: 0,
         });
       }
     }
@@ -53,12 +58,21 @@ async function startNewRound(change, context) {
     for (const playerID of storyPoolItem.chosenBy) {
       await membersRef.doc(playerID).update({
         score: FBAdmin.firestore.FieldValue.increment(3),
+        newPoints: 3,
       });
     }
 
     await membersRef.doc(round.storyTeller.uid).update({
       score: FBAdmin.firestore.FieldValue.increment(3),
+      newPoints: 3,
     });
+
+    const membersWhoMissed = membersSnap.docs.filter((memberDoc) => !storyPoolItem.chosenBy.includes(memberDoc.id) && memberDoc.id !== storyPoolItem.setBy);
+    for (const memberDoc of membersWhoMissed) {
+      await membersRef.doc(memberDoc.id).update({
+        newPoints: 0,
+      });
+    }
   }
 
   // Bonus points
@@ -74,6 +88,7 @@ async function startNewRound(change, context) {
         .doc(poolItem.setBy)
         .update({
           score: FBAdmin.firestore.FieldValue.increment(poolItem.chosenBy.length),
+          newPoints: FBAdmin.firestore.FieldValue.increment(poolItem.chosenBy.length),
         });
     }
   }

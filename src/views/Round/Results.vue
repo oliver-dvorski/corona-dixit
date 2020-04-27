@@ -32,8 +32,9 @@
           <li
             v-for="member in members"
             :key="member.id"
+            :class="{ 'has-text-primary' : member.id === auth.currentUser.uid }"
           >
-            {{ member.name }} ({{ member.score }})
+            {{ member.name }} ({{ member.score }}) <span class="tag">+{{ member.newPoints }}</span>
           </li>
         </ul>
       </div>
@@ -67,7 +68,7 @@
 </template>
 
 <script>
-import { db } from '../../firebase';
+import { auth, db } from '../../firebase';
 import { getEmptyRound } from '../../utils/data';
 import Loader from '../../components/Loader.vue';
 import Graph from '../../components/Graph.vue';
@@ -89,6 +90,7 @@ export default {
       waitingOn: [],
       pool: [],
       loading: false,
+      auth,
     };
   },
 
