@@ -23,7 +23,7 @@
       <graph
         :labels="graphLabels"
         dataset-label="Results"
-        :values="graphValues"
+        :datasets="graphValues"
         type="horizontalBar"
         :height="`${members.length * 4}rem`"
       />
@@ -121,7 +121,28 @@ export default {
     },
 
     graphValues() {
-      return this.members ? this.members.map((member) => member.score) : [];
+      if (!this.members) {
+        return [];
+      }
+
+      const scoreDataset = {
+        label: 'Score from previous round',
+        backgroundColor: 'rgba(20,109,255,0.64)',
+        data: [],
+      };
+
+      const newPointsDataset = {
+        label: 'New points',
+        backgroundColor: 'rgba(255,97,0,0.74)',
+        data: [],
+      };
+
+      this.members.forEach((member) => {
+        scoreDataset.data.push(member.score - member.newPoints);
+        newPointsDataset.data.push(member.newPoints);
+      });
+
+      return [scoreDataset, newPointsDataset];
     },
   },
 

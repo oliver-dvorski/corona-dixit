@@ -28,12 +28,7 @@ export default {
       required: true,
     },
 
-    datasetLabel: {
-      type: String,
-      default: '',
-    },
-
-    values: {
+    datasets: {
       type: Array,
       required: true,
     },
@@ -56,7 +51,9 @@ export default {
               ticks: {
                 beginAtZero: true,
               },
+              stacked: true,
             }],
+            yAxes: [{ stacked: true }],
           },
         };
       },
@@ -69,22 +66,6 @@ export default {
     };
   },
 
-  computed: {
-    chartData() {
-      return {
-        labels: this.labels,
-
-        datasets: [
-          {
-            label: this.datasetLabel,
-            backgroundColor: this.color,
-            data: this.values,
-          },
-        ],
-      };
-    },
-  },
-
   watch: {
     values() {
       this.updateChart();
@@ -95,23 +76,27 @@ export default {
   },
 
   mounted() {
+    this.$el.style.height = this.height;
+
     this.chart = new Chart(
       this.$refs.canvas,
       {
         type: this.type,
-        data: this.chartData,
+        data: {
+          labels: this.labels,
+          datasets: this.datasets,
+        },
         options: this.options,
       },
     );
   },
 
-  created() {
-    this.$el.style.height = this.height;
-  },
-
   methods: {
     updateChart() {
-      this.chart.data = this.chartData;
+      this.chart.data = {
+        labels: this.labels,
+        datasets: this.datasets,
+      };
       this.chart.update();
       this.$el.style.height = this.height;
     },
