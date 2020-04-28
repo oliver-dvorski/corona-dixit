@@ -123,7 +123,7 @@ export default {
         .collection('rounds')
         .doc(this.$route.params.roundID)
         .collection('pool')
-        .where('setBy', '==', auth.currentUser.uid),
+        .where('setBy.uid', '==', auth.currentUser.uid),
     };
   },
 };

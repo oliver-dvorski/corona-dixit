@@ -101,7 +101,10 @@ export default {
         .doc(this.card)
         .set({
           card: this.card,
-          setBy: auth.currentUser.uid,
+          setBy: {
+            uid: auth.currentUser.uid,
+            name: auth.currentUser.displayName,
+          },
           chosenBy: [],
         });
 

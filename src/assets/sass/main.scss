@@ -14,6 +14,35 @@ $primary: #1ab2cb;
     cursor: pointer;
     position: relative;
 
+    .set-by {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: block;
+      width: 100%;
+      color: $white;
+      background: $dark;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50rem;
+      transform: translateY(-50%);
+      text-align: center;
+    }
+
+    .chosen-by {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      background: $light;
+      width: 100%;
+      padding: 0.25rem 0.75rem;
+      border-radius: inherit;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      ul {
+        margin-top: 0;
+      }
+    }
+
     svg {
       position: absolute;
       right: 0;

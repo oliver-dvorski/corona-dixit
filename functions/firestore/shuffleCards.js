@@ -46,7 +46,7 @@ async function shuffleCards(roundSnap, context) {
         .collection('rounds')
         .doc(previousRound.id)
         .collection('pool')
-        .where('setBy', '==', member.id)
+        .where('setBy.uid', '==', member.id)
         .get();
 
       const usedCard = usedCardSnap.docs[0].data().card;

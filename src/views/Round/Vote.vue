@@ -68,7 +68,10 @@ export default {
         .collection('pool')
         .doc(this.vote)
         .update({
-          chosenBy: firebase.firestore.FieldValue.arrayUnion(auth.currentUser.uid),
+          chosenBy: firebase.firestore.FieldValue.arrayUnion({
+            uid: auth.currentUser.uid,
+            name: auth.currentUser.displayName,
+          }),
         });
 
       await db

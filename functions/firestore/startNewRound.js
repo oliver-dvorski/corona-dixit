@@ -25,7 +25,7 @@ async function startNewRound(change, context) {
   const storyPoolItemSnap = await admin
     .firestore()
     .collection(`rooms/${roomID}/rounds/${roundID}/pool`)
-    .where('setBy', '==', round.storyTeller.uid)
+    .where('setBy.uid', '==', round.storyTeller.uid)
     .get();
 
   if (!storyPoolItemSnap.docs[0].exists) {
@@ -55,8 +55,8 @@ async function startNewRound(change, context) {
   } else {
     // At least one person chose the right card and at least one failed to do so
 
-    for (const playerID of storyPoolItem.chosenBy) {
-      await membersRef.doc(playerID).update({
+    for (const player of storyPoolItem.chosenBy) {
+      await membersRef.doc(player.uid).update({
         score: FBAdmin.firestore.FieldValue.increment(3),
         newPoints: 3,
       });
@@ -67,7 +67,7 @@ async function startNewRound(change, context) {
       newPoints: 3,
     });
 
-    const membersWhoMissed = membersSnap.docs.filter((memberDoc) => !storyPoolItem.chosenBy.includes(memberDoc.id) && memberDoc.id !== storyPoolItem.setBy);
+    const membersWhoMissed = membersSnap.docs.filter((memberDoc) => !storyPoolItem.chosenBy.find((player) => player.uid === memberDoc.id) && memberDoc.id !== storyPoolItem.setBy.uid);
     for (const memberDoc of membersWhoMissed) {
       await membersRef.doc(memberDoc.id).update({
         newPoints: 0,
@@ -83,9 +83,9 @@ async function startNewRound(change, context) {
 
   for (const poolDoc of poolCollection.docs) {
     const poolItem = poolDoc.data();
-    if (poolItem.setBy !== 'cloudFunction' && poolItem.setBy !== round.storyTeller.uid && poolItem.chosenBy.length > 0) {
+    if (poolItem.setBy.uid !== 'cloudFunction' && poolItem.setBy.uid !== round.storyTeller.uid && poolItem.chosenBy.length > 0) {
       await membersRef
-        .doc(poolItem.setBy)
+        .doc(poolItem.setBy.uid)
         .update({
           score: FBAdmin.firestore.FieldValue.increment(poolItem.chosenBy.length),
           newPoints: FBAdmin.firestore.FieldValue.increment(poolItem.chosenBy.length),

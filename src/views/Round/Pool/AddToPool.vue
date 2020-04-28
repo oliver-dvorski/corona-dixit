@@ -72,7 +72,10 @@ export default {
         .doc(this.selection)
         .set({
           card: this.selection,
-          setBy: auth.currentUser.uid,
+          setBy: {
+            uid: auth.currentUser.uid,
+            name: auth.currentUser.displayName,
+          },
           chosenBy: [],
         });
 

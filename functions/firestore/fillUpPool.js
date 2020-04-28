@@ -97,7 +97,10 @@ async function fillUpPool(change, context) {
         .doc(deck[randomIndex])
         .set({
           card: deck[randomIndex],
-          setBy: 'cloudFunction',
+          setBy: {
+            uid: 'cloudFunction',
+            name: 'Cloud Function',
+          },
           chosenBy: [],
         });
 

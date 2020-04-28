@@ -20,6 +20,7 @@
       <h2 class="title">
         Results:
       </h2>
+      <by-card :pool="pool" />
       <graph
         :labels="graphLabels"
         dataset-label="Results"
@@ -68,10 +69,11 @@
 </template>
 
 <script>
-import { auth, db } from '../../firebase';
-import { getEmptyRound } from '../../utils/data';
-import Loader from '../../components/Loader.vue';
-import Graph from '../../components/Graph.vue';
+import { auth, db } from '../../../firebase';
+import { getEmptyRound } from '../../../utils/data';
+import Loader from '../../../components/Loader.vue';
+import Graph from '../../../components/Graph.vue';
+import ByCard from './ByCard.vue';
 
 export default {
   name: 'RoundResults',
@@ -79,6 +81,7 @@ export default {
   components: {
     Loader,
     Graph,
+    ByCard,
   },
 
   data() {
