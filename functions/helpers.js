@@ -1,8 +1,12 @@
+function randomPowerlaw(mini, maxi) {
+  return Math.ceil(Math.exp(Math.random() * (Math.log(maxi) - Math.log(mini))) * mini);
+}
+
 async function getHand(deck) {
   const hand = [];
 
   for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * deck.length);
+    const randomIndex = randomPowerlaw(1, deck.length) - 1;
 
     hand.push(deck[randomIndex]);
 
@@ -19,6 +23,7 @@ async function getFullDeck(storage) {
 }
 
 module.exports = {
+  randomPowerlaw,
   getHand,
   getFullDeck,
 };

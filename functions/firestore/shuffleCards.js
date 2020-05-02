@@ -1,4 +1,4 @@
-const { getHand, getFullDeck } = require('../helpers');
+const { getHand, getFullDeck, randomPowerlaw } = require('../helpers');
 const { admin, storage } = require('../services');
 
 async function shuffleCards(roundSnap, context) {
@@ -53,7 +53,7 @@ async function shuffleCards(roundSnap, context) {
 
       hand.splice(hand.indexOf(usedCard), 1);
 
-      const randomIndex = Math.floor(Math.random() * deck.length);
+      const randomIndex = randomPowerlaw(1, deck.length) - 1;
 
       hand.push(deck[randomIndex]);
 

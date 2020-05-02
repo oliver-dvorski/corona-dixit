@@ -1,4 +1,4 @@
-const { getFullDeck } = require('../helpers');
+const { getFullDeck, randomPowerlaw } = require('../helpers');
 const { admin, storage } = require('../services');
 
 async function fillUpPool(change, context) {
@@ -85,7 +85,7 @@ async function fillUpPool(change, context) {
     });
 
     for (let i = 0; i < difference; i++) {
-      const randomIndex = Math.floor(Math.random() * deck.length);
+      const randomIndex = randomPowerlaw(1, deck.length) - 1;
 
       await admin
         .firestore()
