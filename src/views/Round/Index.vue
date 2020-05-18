@@ -50,6 +50,25 @@
           <AddToPool v-if="currentUserPoolCollection.length === 0" />
 
           <Vote v-if="round.vote" />
+
+          <div
+            v-else-if="currentUserPoolCollection.length > 0"
+            class="content container"
+          >
+            <p>Waiting on:</p>
+            <ul v-if="waitingOn.length > 0">
+              <li
+                v-for="member in waitingOn"
+                :key="member.uid"
+              >
+                {{ member.name }}
+              </li>
+            </ul>
+
+            <p v-else>
+              Function execution
+            </p>
+          </div>
         </div>
       </section>
     </div>
@@ -84,6 +103,7 @@ export default {
       room: getEmptyRoom(),
       round: getEmptyRound(),
       members: [],
+      waitingOn: [],
       currentUserPoolCollection: [],
       hand: {
         uid: '',
@@ -125,6 +145,18 @@ export default {
         .collection('pool')
         .where('setBy.uid', '==', auth.currentUser.uid),
     };
+  },
+
+  watch: {
+    round() {
+      this.waitingOn = this.members.filter(
+        (member) => !this.round.submitted.find(
+          (memberThatSubmittedTheirCard) => member.uid === memberThatSubmittedTheirCard.uid,
+        )
+        && member.uid !== this.round.storyTeller.uid
+        && member.uid !== auth.currentUser.uid,
+      );
+    },
   },
 };
 </script>

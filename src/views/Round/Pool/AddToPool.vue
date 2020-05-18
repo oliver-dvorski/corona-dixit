@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import firebase from 'firebase';
 import { auth, db } from '../../../firebase';
 import Cards from '../../../components/Cards.vue';
 import Loader from '../../../components/Loader.vue';
@@ -77,6 +78,18 @@ export default {
             name: auth.currentUser.displayName,
           },
           chosenBy: [],
+        });
+
+      await db
+        .collection('rooms')
+        .doc(this.$route.params.roomID)
+        .collection('rounds')
+        .doc(this.$route.params.roundID)
+        .update({
+          submitted: firebase.firestore.FieldValue.arrayUnion({
+            uid: auth.currentUser.uid,
+            name: auth.currentUser.displayName,
+          }),
         });
 
       this.loading = false;
