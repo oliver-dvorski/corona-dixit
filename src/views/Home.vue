@@ -81,7 +81,6 @@
 <script>
 import User from '../components/User.vue';
 import Join from './Join.vue';
-import { db } from '../firebase';
 
 export default {
   name: 'Home',
@@ -91,17 +90,10 @@ export default {
     Join,
   },
 
-  data() {
-    return {
-      rooms: [],
-      db,
-    };
-  },
-
-  firestore() {
-    return {
-      rooms: db.collection('rooms').orderBy('createdAt', 'desc'),
-    };
+  computed: {
+    rooms() {
+      return this.$store.state.rooms;
+    },
   },
 };
 </script>

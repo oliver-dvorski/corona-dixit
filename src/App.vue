@@ -49,6 +49,10 @@ export default {
       auth,
     };
   },
+
+  async mounted() {
+    await this.$store.dispatch('bindRooms');
+  },
 };
 </script>
 
