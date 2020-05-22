@@ -82,7 +82,7 @@ import Cards from '../../components/Cards.vue';
 import Vote from './Vote.vue';
 import WatchPoolFillUp from './Pool/WatchPoolFillUp.vue';
 import AddToPool from './Pool/AddToPool.vue';
-import { getEmptyRoom, getEmptyRound } from '../../utils/data';
+import { getEmptyRound } from '../../utils/data';
 import Loader from '../../components/Loader.vue';
 
 export default {
@@ -100,7 +100,6 @@ export default {
   data() {
     return {
       auth,
-      room: getEmptyRoom(),
       round: getEmptyRound(),
       members: [],
       waitingOn: [],
@@ -114,12 +113,14 @@ export default {
     };
   },
 
+  computed: {
+    room() {
+      return this.$store.getters.getRoom(this.$route.params.roomID);
+    },
+  },
+
   firestore() {
     return {
-      room: db
-        .collection('rooms')
-        .doc(this.$route.params.roomID),
-
       round: db
         .collection('rooms')
         .doc(this.$route.params.roomID)

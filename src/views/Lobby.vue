@@ -39,7 +39,7 @@
 
 <script>
 import { auth, db } from '../firebase';
-import { getEmptyRoom, getEmptyRound } from '../utils/data';
+import { getEmptyRound } from '../utils/data';
 import Loader from '../components/Loader.vue';
 import { shuffle } from '../utils/array';
 
@@ -53,19 +53,20 @@ export default {
   data() {
     return {
       auth,
-      room: getEmptyRoom(),
       rounds: [],
       latestRound: null,
       members: [],
     };
   },
 
+  computed: {
+    room() {
+      return this.$store.getters.getRoom(this.$route.params.id);
+    },
+  },
+
   firestore() {
     return {
-      room: db
-        .collection('rooms')
-        .doc(this.$route.params.id),
-
       rounds: db
         .collection('rooms')
         .doc(this.$route.params.id)
